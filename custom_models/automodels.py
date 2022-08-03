@@ -8,7 +8,7 @@ import math
 from utils import *
 from custom_models.utils import *
 from custom_transforms import plot_debug_images
-from utils import *
+from utils.dice_score import dice_loss, multiclass_dice_coeff, dice_coeff
 
 _SOFTPLUS_UNITY_ = 1.4427
 _SIGMOID_UNITY_ = 2.0
@@ -102,6 +102,7 @@ class Med_LossModel(nn.Module):
         self.act = nn.Softplus()
         self.actSoft     = nn.Softmax(dim=1)
         self.actLogSoft  = nn.LogSoftmax(dim=1)
+        self.num_classes = C
         if self.apply:
             initWeights = torch.zeros(N)
             #soft label
@@ -109,15 +110,15 @@ class Med_LossModel(nn.Module):
             diff = math.log(1.0-C+C/eps) # solution for softmax
             initSoftTargets = diff*(F.one_hot(init_targets, num_classes=C)-0.5)
             if model == 'NONE':
-                self.hyperW = nn.Parameter(initWeights,     requires_grad=False)
-                self.hyperS = nn.Parameter(initSoftTargets, requires_grad=False)
-                self.soft = False
+                # self.hyperW = nn.Parameter(initWeights,     requires_grad=False)
+                # self.hyperS = nn.Parameter(initSoftTargets, requires_grad=False)
+                # self.soft = False
                 self.cls_loss = nn.CrossEntropyLoss(reduction='none')
             elif model == 'WGHT':
                 self.hyperW = nn.Parameter(initWeights,     requires_grad=grad)
                 self.hyperS = nn.Parameter(initSoftTargets, requires_grad=False)
                 self.soft = False
-                self.cls_loss = nn.CrossEntropyLoss(reduction='none')
+                self.cls_loss = nn.CrossEntropyLoss()
             elif model == 'SOFT':
                 self.hyperW = nn.Parameter(initWeights,     requires_grad=False)
                 self.hyperS = nn.Parameter(initSoftTargets, requires_grad=grad)
@@ -131,28 +132,33 @@ class Med_LossModel(nn.Module):
             else:
                 raise NotImplementedError('{} is not supported loss model'.format(model))
         else:
-            self.cls_loss = nn.CrossEntropyLoss(reduction='none')
+            self.cls_loss = nn.CrossEntropyLoss()
 
     def forward(self, idx, logit, target):
         if self.apply: # always train
-            hyperW = _SOFTPLUS_UNITY_ * self.act(self.hyperW[idx])
-            hyperS = self.hyperS[idx]
-            hyperH = torch.argmax(hyperS, dim=1)
-            if self.soft:
-                if self.sym:
-                    cls_loss = 0.5*torch.sum(self.cls_loss(self.actLogSoft(logit[0]), self.actSoft(hyperS)) +
-                                             self.cls_loss(self.actLogSoft(hyperS), self.actSoft(logit[0])), dim=1)
-                else:
-                    cls_loss = 1.0*torch.sum(self.cls_loss(self.actLogSoft(logit[0]), self.actSoft(hyperS)), dim=1)
-            else:
-                cls_loss = self.cls_loss(logit[0], hyperH)
-            cls_loss = hyperW*cls_loss
-            cls_loss = cls_loss.mean()
-            return cls_loss
+            dice = dice_loss(F.softmax(logit, dim=1).float(),
+                                F.one_hot(target, self.num_classes).permute(0, 3, 1, 2).float(),
+                                multiclass=True)
+            loss = self.cls_loss(logit, target) + dice
+            # hyperW = _SOFTPLUS_UNITY_ * self.act(self.hyperW[idx])
+            # hyperS = self.hyperS[idx]
+            # hyperH = torch.argmax(hyperS, dim=1)
+            # if self.soft:
+            #     if self.sym:
+            #         cls_loss = 0.5*torch.sum(self.cls_loss(self.actLogSoft(logit[0]), self.actSoft(hyperS)) +
+            #                                  self.cls_loss(self.actLogSoft(hyperS), self.actSoft(logit[0])), dim=1)
+            #     else:
+            #         cls_loss = 1.0*torch.sum(self.cls_loss(self.actLogSoft(logit[0]), self.actSoft(hyperS)), dim=1)
+            # else:
+            #     cls_loss = self.cls_loss(logit[0], hyperH)
+            # cls_loss = hyperW*cls_loss
+            # cls_loss = cls_loss.mean()
+            return loss
         else: # always valid
-            cls_loss = self.cls_loss(logit[0], target)
-            cls_loss = cls_loss.mean()
-            return cls_loss
+            dice = dice_loss(F.softmax(logit, dim=1).float(),
+                                F.one_hot(target, self.num_classes).permute(0, 3, 1, 2).float(),
+                                multiclass=True)
+            return 1-dice.item()
 
 class AugmentModelNONE(nn.Module):
     def __init__(self):
@@ -187,11 +193,11 @@ class AugmentModel(nn.Module):
         self.angle = [0.0, 30.0] # [-30.0:30.0] rotation angle
         self.trans = [0.0, 0.45] # [-0.45:0.45] X/Y translate
         self.shear = [0.0, 0.30] # [-0.30:0.30] X/Y shear
-        self.scale = [1.0, 0.50] # [ 0.50:1.50] X/Y scale
+        # self.scale = [1.0, 0.50] # [ 0.50:1.50] X/Y scale
         # color transforms (mid, range)
-        #self.bri = [0.0, 0.9] # [-0.9:0.9] brightness
-        #self.con = [1.0, 0.9] # [0.1:1.9] contrast
-        #self.sat = [0.1, 1.9] # [-0.30:0.30] saturation
+        self.bri = [0.0, 0.9] # [-0.9:0.9] brightness
+        self.con = [1.0, 0.9] # [0.1:1.9] contrast
+        self.sat = [0.1, 1.9] # [-0.30:0.30] saturation
         #self.hue = [1.0, 0.50] # [ 0.70:1.30] hue
         #self.gam = [1.0, 0.50] # [ 0.70:1.30] gamma
         # actP: 機率的激活函數，actM: 強度的激活函數

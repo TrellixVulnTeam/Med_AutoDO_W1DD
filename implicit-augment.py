@@ -1,3 +1,4 @@
+# python3 implicit-augment.py -r run0 --gpu 0 --dataset med --aug-model SEP --los-model NONE --hyper-opt HES
 from __future__ import print_function
 import argparse, os, sys, random, time, datetime
 import numpy as np
