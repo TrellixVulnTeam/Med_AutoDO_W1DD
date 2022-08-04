@@ -15,7 +15,7 @@ _SIGMOID_UNITY_ = 2.0
 _EPS_ = 1e-8 # small regularization constant
 
 __all__ = ['innerTest', 'innerTrain', 'classTrain', 'vizStat',
-            'LossModel', 'AugmentModelNONE', 'AugmentModel', 'hyperHesTrain']
+            'LossModel', 'AugmentModelNONE', 'AugmentModel', 'Med_AugmentModel', 'Med_LossModel', 'hyperHesTrain']
 
 
 def metricCE(logit, target):
@@ -95,7 +95,7 @@ class Med_LossModel(nn.Module):
         C : num_classes
         model : los_model (WGHT=update loss-reweighting) (SOFT : update soft-labeling) (BOTH=update loss-reweighting and soft-labeling)
         """
-        super(LossModel, self).__init__()
+        super(Med_LossModel, self).__init__()
         self.alpha = 0.1
         self.apply = apply
         self.sym = sym
@@ -220,19 +220,19 @@ class AugmentModel(nn.Module):
                 paramNeg = torch.log(1.0-self.actP(self.paramP)).repeat(1,B) # [-Inf:0]
                 paramM = self.actM(self.paramM).repeat(1,B) # (K+J)xB [0:1], default=magn
             else:
-                paramPos = torch.log(    self.actP(self.paramP[:,idx])) # [-Inf:0]
-                paramNeg = torch.log(1.0-self.actP(self.paramP[:,idx])) # [-Inf:0]
+                paramPos = torch.log(    self.actP(self.paramP[:,idx])) # [-Inf:0] [擴增方法數, data point number] 取針對該資料的使用機率之參數
+                paramNeg = torch.log(1.0-self.actP(self.paramP[:,idx])) # [-Inf:0] [擴增方法數, data point number] 取針對該資料的不使用機率之參數
                 paramM = self.actM(self.paramM[:,idx]) # (K+J)xB [0:1], default=magn
             paramP = torch.cat([paramPos.view(-1,1), paramNeg.view(-1,1)], dim=1) # B*(K+J)x2
             # reparametrize probabilities and magnitudes
-            sampleP = F.gumbel_softmax(paramP, tau=1.0, hard=True).to(device) # B*(K+J)x2
-            sampleP = sampleP[:,0]
-            sampleP = sampleP.reshape(K,B)
+            sampleP = F.gumbel_softmax(paramP, tau=1.0, hard=True).to(device) # B*(K+J)x2 對K+種擴增方法的使用與不使用做採樣
+            sampleP = sampleP[:,0] #取使用那個col，1為使用
+            sampleP = sampleP.reshape(K+J,B) #reshape回batch
             # reparametrize magnitudes
             #sampleM = paramM[:K] * torch.rand(K,B).to(device) # KxB, prior: U[0,1]
-            sampleM = paramM[:K] * torch.randn(K,B).to(device) # KxB, prior: N(0,1)
+            sampleM = paramM[:K] * torch.randn(K,B).to(device) # KxB, prior: N(0,1) #
             # affine augmentations
-            R: torch.tensor = torch.zeros(B,3,3).to(device) + torch.eye(3).to(device)
+            R: torch.tensor = torch.zeros(B,3,3).to(device) + torch.eye(3).to(device) #3*3對角線為1
             # define the rotation angle
             ANG: torch.tensor = sampleP[0] * sampleM[0] * self.angle[1] # B(0/1)*U[0,1]*M/10
             # define the rotation center
@@ -286,6 +286,123 @@ class AugmentModel(nn.Module):
             
             return x_warped
 
+class Med_AugmentModel(nn.Module):
+    def __init__(self, N, magn, apply, mode, grad, device):
+        """
+        N : totla image size
+        magn : magnitude
+        """
+        super(Med_AugmentModel, self).__init__()
+        # enable/disable manual augmentation
+        self.N = N
+        self.apply = apply
+        self.device = device
+        self.mode = mode # mode
+        self.K = 7 # number of affine magnitude params
+        self.J = 0 # number of color magnitude params
+        K = self.K
+        J = self.J
+        #預設機率與強度超參數的初始值
+        magnNorm = torch.ones(1)*magn/10.0 # normalize to 10 like in RandAugment
+        probNorm = torch.ones(1)*1/(K-2) # 1/(K-2) probability
+        magnLogit = torch.log(magnNorm/(1-magnNorm)) # convert to logit
+        probLogit = torch.log(probNorm/(1-probNorm)) # convert to logit
+        # affine transforms (mid, range)
+        self.angle = [0.0, 30.0] # [-30.0:30.0] rotation angle
+        self.trans = [0.0, 0.45] # [-0.45:0.45] X/Y translate
+        self.shear = [0.0, 0.30] # [-0.30:0.30] X/Y shear
+        # self.scale = [1.0, 0.50] # [ 0.50:1.50] X/Y scale
+        # color transforms (mid, range)
+        self.bri = [0.0, 0.9] # [-0.9:0.9] brightness
+        self.con = [1.0, 0.9] # [0.1:1.9] contrast
+        self.sat = [0.1, 1.9] # [-0.30:0.30] saturation
+        #self.hue = [1.0, 0.50] # [ 0.70:1.30] hue
+        #self.gam = [1.0, 0.50] # [ 0.70:1.30] gamma
+        # actP: 機率的激活函數，actM: 強度的激活函數
+        self.actP = nn.Sigmoid()
+        self.actM = nn.Sigmoid()
+        # 建立機率與強度的可學習超參數矩陣 shape = (擴增方法數量*資料數量)
+        self.paramP = nn.Parameter(probLogit*torch.ones(K+J,N), requires_grad=grad)
+        self.paramM = nn.Parameter(magnLogit*torch.ones(K+J,N), requires_grad=grad)
+
+    def forward(self, idx, x):
+        B,C,H,W = x.shape
+        device = self.device
+        mode = self.mode
+        if self.apply:
+            K = self.K
+            J = self.J
+            # learnable hyperparameters
+            if self.N == 1:
+                paramPos = torch.log(    self.actP(self.paramP)).repeat(1,B) # [-Inf:0]
+                paramNeg = torch.log(1.0-self.actP(self.paramP)).repeat(1,B) # [-Inf:0]
+                paramM = self.actM(self.paramM).repeat(1,B) # (K+J)xB [0:1], default=magn
+            else:
+                paramPos = torch.log(    self.actP(self.paramP[:,idx])) # [-Inf:0] [擴增方法數, data point number] 取針對該資料的使用機率之參數
+                paramNeg = torch.log(1.0-self.actP(self.paramP[:,idx])) # [-Inf:0] [擴增方法數, data point number] 取針對該資料的不使用機率之參數
+                paramM = self.actM(self.paramM[:,idx]) # (K+J)xB [0:1], default=magn
+            paramP = torch.cat([paramPos.view(-1,1), paramNeg.view(-1,1)], dim=1) # B*(K+J)x2
+            # reparametrize probabilities and magnitudes
+            sampleP = F.gumbel_softmax(paramP, tau=1.0, hard=True).to(device) # B*(K+J)x2 對K+種擴增方法的使用與不使用做採樣
+            sampleP = sampleP[:,0] #取使用那個col，1為使用
+            sampleP = sampleP.reshape(K+J,B) #reshape回batch
+            # reparametrize magnitudes
+            #sampleM = paramM[:K] * torch.rand(K,B).to(device) # KxB, prior: U[0,1]
+            sampleM = paramM[:K] * torch.randn(K,B).to(device) # KxB, prior: N(0,1) #
+            # affine augmentations
+            R: torch.tensor = torch.zeros(B,3,3).to(device) + torch.eye(3).to(device) #3*3對角線為1
+            # define the rotation angle
+            ANG: torch.tensor = sampleP[0] * sampleM[0] * self.angle[1] # B(0/1)*U[0,1]*M/10
+            # define the rotation center
+            CTR: torch.tensor = torch.cat((W*torch.ones(B).to(device)//2, H*torch.ones(B).to(device)//2)).view(-1,2)
+            # define the scale factor
+            SCL: torch.tensor = torch.zeros_like(CTR).to(device)
+            SCL[:,0] = self.scale[0] + sampleP[5] * sampleM[5] * self.scale[1] # mid + B(0/1)*U[0,1]*M/10
+            SCL[:,1] = self.scale[0] + sampleP[6] * sampleM[6] * self.scale[1] # mid + B(0/1)*U[0,1]*M/10
+            R[:,0:2] = kornia.get_rotation_matrix2d(CTR, ANG, SCL)
+            # translation: border not defined yet
+            T: torch.tensor = torch.zeros_like(R) + torch.eye(3).to(device)
+            T[:,0,2] = W * sampleP[1] * sampleM[1] * self.trans[1]
+            T[:,1,2] = H * sampleP[2] * sampleM[2] * self.trans[1]
+            # shear: check this
+            S: torch.tensor = torch.zeros_like(R) + torch.eye(3).to(device)
+            S[:,0,1] = sampleP[3] * sampleM[3] * self.shear[1]
+            S[:,1,0] = sampleP[4] * sampleM[4] * self.shear[1]
+            # apply the transformation to original image
+            M: torch.tensor = torch.bmm(torch.bmm(S,T),R)
+            if mode == 0: #upscale
+                x = kornia.geometry.resize(x, (4*H, 4*W))
+                x_warped: torch.tensor = kornia.warp_perspective(x, M, dsize=(4*H,4*W), border_mode='border')
+                x_warped = kornia.geometry.resize(x_warped, (H,W))
+            else:
+                x_warped: torch.tensor = kornia.warp_perspective(x, M, dsize=(H,W), border_mode='border')
+            ## color augmentations
+            #if mode == 1:
+            #    BRI: torch.tensor = self.bri[0] + sampleP[6] * sampleC[0] * self.bri[1] # mid + B(0/1)*U[0,1]*M/10
+            #    CON: torch.tensor = self.con[0] + sampleP[7] * sampleC[1] * self.con[1]
+            #    x_color = kornia.adjust_brightness(kornia.adjust_contrast(x_warped, CON), BRI)
+            #else:
+            #    x_color = x_warped
+            
+            return x_warped
+
+        else: # process val to compensate for Kornia artifacts!
+            if mode == 0: #upscale
+                M: torch.tensor = torch.zeros(B,3,3).to(device) + torch.eye(3).to(device)
+                x = kornia.geometry.resize(x, (4*H, 4*W))
+                x_warped: torch.tensor = kornia.warp_perspective(x, M, dsize=(4*H,4*W), border_mode='border')
+                x_warped = kornia.geometry.resize(x_warped, (H,W))
+            else:
+                x_warped = x #torch.tensor = kornia.warp_perspective(x, M, dsize=(H,W), border_mode='border')
+            ## color augmentations
+            #if mode == 1:
+            #    BRI: torch.tensor = torch.zeros(B).to(device)
+            #    CON: torch.tensor = torch.ones(B).to(device)
+            #    x_color = kornia.adjust_brightness(kornia.adjust_contrast(x_warped, CON), BRI)
+            #else:
+            #    x_color = x_warped
+            
+            return x_warped
 
 def hyperHesTrain(args, Dnn_model, optimizer, device, valid_loader, train_loader, epoch, start,
         trainLosModel, trainAugModel, validLosModel, validAugModel, hyperOptimizer, logger):
