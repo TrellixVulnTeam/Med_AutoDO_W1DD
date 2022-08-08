@@ -364,18 +364,24 @@ def main(args):
     logger.info('Test/Valid/Train Split: {}/{}/{} out of total {} train images'.format(L,M,N,T))
     # validation data loss/augmentation model
     if hyper_est:
-        validLosModel = LossModel(N=1, C=num_classes, init_targets=list(), apply=False, model='NONE', grad=False, sym=False, device=device).to(device)
-        validAugModel = AugmentModel(N=1, magn=aug_M, apply=False, mode=aug_mode, grad=False, device=device).to(device)
+        # validLosModel = LossModel(N=1, C=num_classes, init_targets=list(), apply=False, model='NONE', grad=False, sym=False, device=device).to(device)
+        # validAugModel = AugmentModel(N=1, magn=aug_M, apply=False, mode=aug_mode, grad=False, device=device).to(device)
+        validLosModel = Med_LossModel(N=1, C=num_classes, init_targets=list(), apply=False, model='NONE', grad=False, sym=False, device=device).to(device)
+        validAugModel = Med_AugmentModel(N=1, magn=aug_M, apply=False, mode=aug_mode, grad=False, device=device).to(device)
     # train data loss/augmentation models
     symmetricKlEnable = False if (imbalance_ratio == 1) and (noise_ratio == 0.0) else True
-    trainLosModel = LossModel(N=T, C=num_classes, init_targets=train_targets, apply=True, model=args.los_model, grad=hyperGradEnable, sym=symmetricKlEnable, device=device).to(device)
+    # trainLosModel = LossModel(N=T, C=num_classes, init_targets=train_targets, apply=True, model=args.los_model, grad=hyperGradEnable, sym=symmetricKlEnable, device=device).to(device)
+    trainLosModel = Med_LossModel(N=T, C=num_classes, init_targets=train_targets, apply=True, model=args.los_model, grad=hyperGradEnable, sym=symmetricKlEnable, device=device).to(device)
     # select model
     if   args.aug_model in ['NONE', 'RAND', 'AUTO', 'DADA']:
-        trainAugModel = AugmentModel(N=1, magn=aug_M, apply=False, mode=aug_mode, grad=False,           device=device).to(device)
+        # trainAugModel = AugmentModel(N=1, magn=aug_M, apply=False, mode=aug_mode, grad=False,           device=device).to(device)
+        trainAugModel = Med_AugmentModel(N=1, magn=aug_M, apply=False, mode=aug_mode, grad=False,           device=device).to(device)
     elif args.aug_model == 'SHA':
-        trainAugModel = AugmentModel(N=1, magn=aug_M, apply=True,  mode=aug_mode, grad=hyperGradEnable, device=device).to(device)
+        # trainAugModel = AugmentModel(N=1, magn=aug_M, apply=True,  mode=aug_mode, grad=hyperGradEnable, device=device).to(device)
+        trainAugModel = Med_AugmentModel(N=1, magn=aug_M, apply=True,  mode=aug_mode, grad=hyperGradEnable, device=device).to(device)
     elif args.aug_model == 'SEP':
-        trainAugModel = AugmentModel(N=T, magn=aug_M, apply=True,  mode=aug_mode, grad=hyperGradEnable, device=device).to(device)
+        # trainAugModel = AugmentModel(N=T, magn=aug_M, apply=True,  mode=aug_mode, grad=hyperGradEnable, device=device).to(device)
+        trainAugModel = Med_AugmentModel(N=T, magn=aug_M, apply=True,  mode=aug_mode, grad=hyperGradEnable, device=device).to(device)
     else:
         raise NotImplementedError('{} is not supported train augmentation model!'.format(args.aug_model))
     # hyperoptimizer
@@ -418,26 +424,31 @@ def main(args):
             # train hyperparameters
             if hyper_opt == 'HES' and hyperEnable:
                 hyper_adjust_learning_rate(args, hyperOptimizer, epoch-hyperEpochStart)
-                dDivs = hyperHesTrain(args, Dnn_model, optimizer, device, valid_loader, hyper_loader, epoch, hyperEpochStart,
+                # dDivs = hyperHesTrain(args, Dnn_model, optimizer, device, valid_loader, hyper_loader, epoch, hyperEpochStart,
+                #             trainLosModel, trainAugModel, validLosModel, validAugModel, hyperOptimizer, logger)
+                dDivs = Med_hyperHesTrain(args, Dnn_model, optimizer, device, valid_loader, hyper_loader, epoch, hyperEpochStart,
                             trainLosModel, trainAugModel, validLosModel, validAugModel, hyperOptimizer, logger)
             # train encoder and classifier
-            train_loss = innerTrain(args, Dnn_model, optimizer, device, train_loader, epoch, trainLosModel, trainAugModel, logger)
+            # train_loss = innerTrain(args, Dnn_model, optimizer, device, train_loader, epoch, trainLosModel, trainAugModel, logger)
+            train_loss = Med_innerTrain(args, Dnn_model, optimizer, device, train_loader, epoch, trainLosModel, trainAugModel, logger)
         # test
         if testEnable:
-            acc, test_loss, _ = innerTest(args, encoder, decoder, device, test_loader, epoch, logger)
+            # acc, test_loss, _ = innerTest(args, encoder, decoder, device, test_loader, epoch, logger)
+            acc, test_loss = Med_innerTest(args, Dnn_model, device, test_loader, epoch, logger)
             # save checkpoint (acc-based)
             if acc >= best_acc:
-                logger.info('SAVING trained model at epoch {} with {:.2f}% accuracy'.format(epoch, acc))
-                save(encoder, decoder, trainLosModel, trainAugModel, acc, epoch, checkpoint_file)
+                logger.info('SAVING trained model at epoch {} with {:.4f}% Dice score'.format(epoch, acc))
+                # save(encoder, decoder, trainLosModel, trainAugModel, acc, epoch, checkpoint_file)
+                Med_save(Dnn_model, trainLosModel, trainAugModel, acc, epoch, checkpoint_file)
                 best_acc = acc
         else:
             acc, test_loss = 0.0, 0.0
         # save log
-        writer.add_scalar('Accuracy', acc, epoch)
+        writer.add_scalar('Dice score', acc, epoch)
         writer.add_scalar('Train Loss', train_loss, epoch)
         writer.add_scalar('Test Loss', test_loss, epoch)
     #
-    logger.info('BEST trained model has {:.2f}% accuracy'.format(best_acc))
+    logger.info('BEST trained model has {:.4f}% Dice score'.format(best_acc))
     writer.flush()
     writer.close()
 

@@ -83,7 +83,8 @@ class MedDataset(Dataset):
             img = img.transpose(2, 0, 1)
         return {
             'image': torch.as_tensor(img.copy()).float().contiguous(),
-            'mask': torch.as_tensor(mask.copy()).long().contiguous()
+            'mask': torch.as_tensor(mask.copy()).long().contiguous(),
+            'idx': idx
         }
 
 class Med_MultDirDataset(Dataset):
@@ -169,7 +170,8 @@ class Med_MultDirDataset(Dataset):
             img = img.transpose(2, 0, 1)
         return {
             'image': torch.as_tensor(img.copy()).float().contiguous(),
-            'mask': torch.as_tensor(mask.copy()).long().contiguous()
+            'mask': torch.as_tensor(mask.copy()).long().contiguous(),
+            'idx': idx
         }
 
 class MedAllDataset(Dataset):
@@ -268,7 +270,8 @@ class MedAllDataset(Dataset):
         mask = self.preprocess(mask, self.scale, is_mask=True)
         return {
             'image': torch.as_tensor(img.copy()).float().contiguous(),
-            'mask': torch.as_tensor(mask.copy()).long().contiguous()
+            'mask': torch.as_tensor(mask.copy()).long().contiguous(),
+            'idx': idx
         }
 class BasicDataset(Dataset):
     def __init__(self, images_dir: str, masks_dir: str, scale: float = 1.0, mask_suffix: str = ''):

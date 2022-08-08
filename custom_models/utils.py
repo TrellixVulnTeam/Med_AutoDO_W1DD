@@ -12,6 +12,14 @@ def save(encoder, decoder, reweight_model, augment_model, acc, epoch, checkpoint
                 'epoch': epoch}
     torch.save(state, checkpoint_file)
 
+def Med_save(Dnn_model, reweight_model, augment_model, acc, epoch, checkpoint_file):
+    state = {  'Dnn_model_state_dict': Dnn_model.state_dict(),
+                'reweight_state_dict': reweight_model.state_dict(),
+                'augment_state_dict': augment_model.state_dict(),
+                'acc': acc,
+                'epoch': epoch}
+    torch.save(state, checkpoint_file)
+
 
 def exp_lr_scheduler(optimizer, epoch, lr_decay, lr_decay_epoch):
     """Decay learning rate by a factor of lr_decay every lr_decay_epoch epochs"""

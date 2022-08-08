@@ -7,20 +7,28 @@ import kornia
 import math
 from utils import *
 from custom_models.utils import *
-from custom_transforms import plot_debug_images
+from custom_transforms import plot_debug_images, aug_operator
 from utils.dice_score import dice_loss, multiclass_dice_coeff, dice_coeff
+import random
+import albumentations as A
 
 _SOFTPLUS_UNITY_ = 1.4427
 _SIGMOID_UNITY_ = 2.0
 _EPS_ = 1e-8 # small regularization constant
 
-__all__ = ['innerTest', 'innerTrain', 'classTrain', 'vizStat',
+__all__ = ['innerTest', 'innerTrain', 'classTrain', 'vizStat', 'Med_hyperHesTrain', 'Med_innerTrain', 'Med_innerTest',
             'LossModel', 'AugmentModelNONE', 'AugmentModel', 'Med_AugmentModel', 'Med_LossModel', 'hyperHesTrain']
 
 
 def metricCE(logit, target):
     return F.cross_entropy(logit, target)
 
+def insert_policy(policies, transform):
+    for _ in range(1):
+        policy = random.choice(policies)
+        for name, pr, level in policy:
+            transform.transforms.insert(0, aug_operator(name,pr,level))
+    return transform
 
 class LossModel(nn.Module):
     def __init__(self, N, C, init_targets, apply, model, grad, sym, device):
@@ -298,40 +306,26 @@ class Med_AugmentModel(nn.Module):
         self.apply = apply
         self.device = device
         self.mode = mode # mode
-        self.K = 7 # number of affine magnitude params
-        self.J = 0 # number of color magnitude params
-        K = self.K
-        J = self.J
+        self.aug_ops_num = 16 # number of affine magnitude params
+        K = self.aug_ops_num
         #預設機率與強度超參數的初始值
         magnNorm = torch.ones(1)*magn/10.0 # normalize to 10 like in RandAugment
         probNorm = torch.ones(1)*1/(K-2) # 1/(K-2) probability
         magnLogit = torch.log(magnNorm/(1-magnNorm)) # convert to logit
         probLogit = torch.log(probNorm/(1-probNorm)) # convert to logit
-        # affine transforms (mid, range)
-        self.angle = [0.0, 30.0] # [-30.0:30.0] rotation angle
-        self.trans = [0.0, 0.45] # [-0.45:0.45] X/Y translate
-        self.shear = [0.0, 0.30] # [-0.30:0.30] X/Y shear
-        # self.scale = [1.0, 0.50] # [ 0.50:1.50] X/Y scale
-        # color transforms (mid, range)
-        self.bri = [0.0, 0.9] # [-0.9:0.9] brightness
-        self.con = [1.0, 0.9] # [0.1:1.9] contrast
-        self.sat = [0.1, 1.9] # [-0.30:0.30] saturation
-        #self.hue = [1.0, 0.50] # [ 0.70:1.30] hue
-        #self.gam = [1.0, 0.50] # [ 0.70:1.30] gamma
         # actP: 機率的激活函數，actM: 強度的激活函數
         self.actP = nn.Sigmoid()
         self.actM = nn.Sigmoid()
         # 建立機率與強度的可學習超參數矩陣 shape = (擴增方法數量*資料數量)
-        self.paramP = nn.Parameter(probLogit*torch.ones(K+J,N), requires_grad=grad)
-        self.paramM = nn.Parameter(magnLogit*torch.ones(K+J,N), requires_grad=grad)
+        self.paramP = nn.Parameter(probLogit*torch.ones(K,N), requires_grad=grad)
+        self.paramM = nn.Parameter(magnLogit*torch.ones(K,N), requires_grad=grad)
 
     def forward(self, idx, x):
-        B,C,H,W = x.shape
+        B,C,H,W = x['image'].shape
         device = self.device
         mode = self.mode
         if self.apply:
-            K = self.K
-            J = self.J
+            K = self.aug_ops_num
             # learnable hyperparameters
             if self.N == 1:
                 paramPos = torch.log(    self.actP(self.paramP)).repeat(1,B) # [-Inf:0]
@@ -345,55 +339,35 @@ class Med_AugmentModel(nn.Module):
             # reparametrize probabilities and magnitudes
             sampleP = F.gumbel_softmax(paramP, tau=1.0, hard=True).to(device) # B*(K+J)x2 對K+種擴增方法的使用與不使用做採樣
             sampleP = sampleP[:,0] #取使用那個col，1為使用
-            sampleP = sampleP.reshape(K+J,B) #reshape回batch
+            sampleP = sampleP.reshape(K,B) #reshape回batch
             # reparametrize magnitudes
             #sampleM = paramM[:K] * torch.rand(K,B).to(device) # KxB, prior: U[0,1]
-            sampleM = paramM[:K] * torch.randn(K,B).to(device) # KxB, prior: N(0,1) #
-            # affine augmentations
-            R: torch.tensor = torch.zeros(B,3,3).to(device) + torch.eye(3).to(device) #3*3對角線為1
-            # define the rotation angle
-            ANG: torch.tensor = sampleP[0] * sampleM[0] * self.angle[1] # B(0/1)*U[0,1]*M/10
-            # define the rotation center
-            CTR: torch.tensor = torch.cat((W*torch.ones(B).to(device)//2, H*torch.ones(B).to(device)//2)).view(-1,2)
-            # define the scale factor
-            SCL: torch.tensor = torch.zeros_like(CTR).to(device)
-            SCL[:,0] = self.scale[0] + sampleP[5] * sampleM[5] * self.scale[1] # mid + B(0/1)*U[0,1]*M/10
-            SCL[:,1] = self.scale[0] + sampleP[6] * sampleM[6] * self.scale[1] # mid + B(0/1)*U[0,1]*M/10
-            R[:,0:2] = kornia.get_rotation_matrix2d(CTR, ANG, SCL)
-            # translation: border not defined yet
-            T: torch.tensor = torch.zeros_like(R) + torch.eye(3).to(device)
-            T[:,0,2] = W * sampleP[1] * sampleM[1] * self.trans[1]
-            T[:,1,2] = H * sampleP[2] * sampleM[2] * self.trans[1]
-            # shear: check this
-            S: torch.tensor = torch.zeros_like(R) + torch.eye(3).to(device)
-            S[:,0,1] = sampleP[3] * sampleM[3] * self.shear[1]
-            S[:,1,0] = sampleP[4] * sampleM[4] * self.shear[1]
-            # apply the transformation to original image
-            M: torch.tensor = torch.bmm(torch.bmm(S,T),R)
-            if mode == 0: #upscale
-                x = kornia.geometry.resize(x, (4*H, 4*W))
-                x_warped: torch.tensor = kornia.warp_perspective(x, M, dsize=(4*H,4*W), border_mode='border')
-                x_warped = kornia.geometry.resize(x_warped, (H,W))
-            else:
-                x_warped: torch.tensor = kornia.warp_perspective(x, M, dsize=(H,W), border_mode='border')
-            ## color augmentations
-            #if mode == 1:
-            #    BRI: torch.tensor = self.bri[0] + sampleP[6] * sampleC[0] * self.bri[1] # mid + B(0/1)*U[0,1]*M/10
-            #    CON: torch.tensor = self.con[0] + sampleP[7] * sampleC[1] * self.con[1]
-            #    x_color = kornia.adjust_brightness(kornia.adjust_contrast(x_warped, CON), BRI)
-            #else:
-            #    x_color = x_warped
-            
-            return x_warped
+            sampleM = paramM[:K] * torch.randn(K,B).to(device) # KxB, prior: N(0,1)
+            img = x['image'].cpu().detach().numpy()
+            mask = x['mask'].cpu().detach().numpy()
+            for i in range(B):
+                image_aug = img[i]
+                mask_aug = mask[i]
+                transform = A.Compose([])
+                for p in range(K):
+                    if sampleP[p,i]:
+                        transform.transforms.insert(0, aug_operator(p,1,sampleM[p,i]))
+                image_aug = image_aug.transpose(1,2,0)
+                image_aug = image_aug.astype(np.float32)
+                mask_aug = mask_aug.astype(np.float32)
+                aug_data = transform(image=image_aug, mask=mask_aug)
+                image_aug = aug_data['image']
+                mask_aug = aug_data['mask']
+                image_aug = image_aug.transpose(2, 0, 1)
+                img[i] = image_aug
+                mask[i] = mask_aug
+            return {
+                'image': torch.as_tensor(img.copy()).float().contiguous(),
+                'mask': torch.as_tensor(mask.copy()).long().contiguous()
+            }
 
         else: # process val to compensate for Kornia artifacts!
-            if mode == 0: #upscale
-                M: torch.tensor = torch.zeros(B,3,3).to(device) + torch.eye(3).to(device)
-                x = kornia.geometry.resize(x, (4*H, 4*W))
-                x_warped: torch.tensor = kornia.warp_perspective(x, M, dsize=(4*H,4*W), border_mode='border')
-                x_warped = kornia.geometry.resize(x_warped, (H,W))
-            else:
-                x_warped = x #torch.tensor = kornia.warp_perspective(x, M, dsize=(H,W), border_mode='border')
+            x_warped = x #torch.tensor = kornia.warp_perspective(x, M, dsize=(H,W), border_mode='border')
             ## color augmentations
             #if mode == 1:
             #    BRI: torch.tensor = torch.zeros(B).to(device)
@@ -448,16 +422,30 @@ def hyperHesTrain(args, Dnn_model, optimizer, device, valid_loader, train_loader
     for batch_idx in range(0,1*B):
         # sample val batch
         try:
-            vData, vTarget, vIndex = next(v_loader_iterator)
+            # vData, vTarget, vIndex = next(v_loader_iterator)
+            vdata, vIndex = next(v_loader_iterator)
+            vData = vdata['image']
+            vTarget = vdata['mask']
         except StopIteration:
+            # v_loader_iterator = iter(valid_loader)
+            # vData, vTarget, vIndex = next(v_loader_iterator)
             v_loader_iterator = iter(valid_loader)
-            vData, vTarget, vIndex = next(v_loader_iterator)
+            vdata, vIndex = next(v_loader_iterator)
+            vData = vdata['image']
+            vTarget = vdata['mask']
         # sample train batch
         try:
-            tData, tTarget, tIndex = next(t_loader_iterator)
+            # tData, tTarget, tIndex = next(t_loader_iterator)
+            tdata, tIndex = next(t_loader_iterator)
+            tData = tdata['image']
+            tTarget = tdata['mask']
         except StopIteration:
+            # t_loader_iterator = iter(train_loader)
+            # tData, tTarget, tIndex = next(t_loader_iterator)
             t_loader_iterator = iter(train_loader)
-            tData, tTarget, tIndex = next(t_loader_iterator)
+            tdata, tIndex = next(t_loader_iterator)
+            tData = tdata['image']
+            tTarget = tdata['mask']
         #
         tData  = tData.to(device)
         tTarget= tTarget.to(device)
@@ -529,6 +517,195 @@ def hyperHesTrain(args, Dnn_model, optimizer, device, valid_loader, train_loader
     #logger.info('Epoch: {}\t Divergence: {:.4f}'.format(epoch, dDivs[-1]))
     return dDivs
 
+def Med_hyperHesTrain(args, Dnn_model, optimizer, device, valid_loader, train_loader, epoch, start,
+        trainLosModel, trainAugModel, validLosModel, validAugModel, hyperOptimizer, logger):
+    logger = logger
+    Dnn_model.eval()
+    # encoder.eval()
+    # decoder.eval()
+    validLosModel.eval()
+    validAugModel.eval()
+    trainLosModel.train()
+    trainAugModel.train()
+    M = len(valid_loader.dataset)
+    N = len(train_loader.dataset)
+    B = len(train_loader) # number of batches
+    v_loader_iterator = iter(valid_loader)
+    t_loader_iterator = iter(train_loader)
+    dDivs = 4*[0.0]
+    #
+    for param_group in optimizer.param_groups:
+        task_lr = param_group['lr']
+    hyperParams = list()
+    for n,p in trainAugModel.named_parameters():
+        if p.requires_grad:
+            hyperParams.append(p)
+    for n,p in trainLosModel.named_parameters():
+        if p.requires_grad:
+            hyperParams.append(p)
+    theta = list()
+    # for n,p in decoder.named_parameters():
+    #     if (len(args.hyper_theta) == 0) or (any([e in n for e in args.hyper_theta]) and ('.weight' in n)):
+    #         theta.append(p)
+    for n,p in Dnn_model.named_parameters():
+        if (len(args.hyper_theta) == 0) or (any([e in n for e in args.hyper_theta]) and ('.weight' in n)):
+            theta.append(p)
+    #
+    batch_time = AverageMeter()
+    data_time  = AverageMeter()
+    v0Norms    = AverageMeter()
+    v1Norms    = AverageMeter()
+    mvpNorms   = AverageMeter()
+    end = time.time()
+    ######## start train hyper model ########
+    for batch_idx in range(0,1*B):
+        # sample val batch
+        try:
+            vData = next(v_loader_iterator)
+        except StopIteration:
+            v_loader_iterator = iter(valid_loader)
+            vData = next(v_loader_iterator)
+        # sample train batch
+        try:
+            tData = next(t_loader_iterator)
+        except StopIteration:
+            t_loader_iterator = iter(train_loader)
+            tData = next(t_loader_iterator)
+        #
+        
+        # measure data loading time
+        data_time.update(time.time() - end)
+        # warm-up learning rate
+        hyper_lr = hyper_warmup_learning_rate(args, epoch-start, batch_idx, B, hyperOptimizer)
+        # v1 = dL_v / dTheta: Lx1
+        optimizer.zero_grad()
+        vIndex = vData['idx']
+        vData = validAugModel(vIndex, vData)
+        
+        vImg = vData['image']
+        vMask = vData['mask']
+
+        vImg  = vImg.to(device)
+        vMask= vMask.to(device)
+        vIndex = vIndex.to(device)
+
+        vOutput = Dnn_model(vImg)
+        vLoss = validLosModel(vIndex, vOutput, vMask)
+        g1 = torch.autograd.grad(vLoss, theta)
+        v1 = [e.detach().clone() for e in g1]
+        # v0 = dL_t / dTheta: Lx1
+        optimizer.zero_grad()
+        tIndex = tData['idx']
+        tData = trainAugModel(tIndex, tData)
+
+        tImg = tData['image']
+        tMask = tData['mask']
+
+        tImg  = tImg.to(device)
+        tMask= tMask.to(device)
+        tIndex = tIndex.to(device)
+
+        tOutput = Dnn_model(tImg)
+        tLoss = trainLosModel(tIndex, tOutput, tMask)
+        g0 = torch.autograd.grad(tLoss, theta, create_graph=True)
+        v0 = [e.detach().clone() for e in g0]
+        # v2 = H^-1 * v0: Lx1
+        v2 = [-e.detach().clone() for e in v1]
+        if args.hyper_iters > 0: # Neumann series
+            for j in range(0, args.hyper_iters):
+                ns = torch.autograd.grad(g0, theta, grad_outputs=v1, create_graph=True)
+                v1 = [v1[l] - args.hyper_alpha*e for l,e in enumerate(ns)]
+                v2 = [v2[l] - e.detach().clone() for l,e in enumerate(v1)]
+        # MVP compute
+        v0Norm = torch.sum(torch.cat([t.detach().clone().view(-1)*v.detach().clone().view(-1) for t,v in zip(v0,v0)])) # gLt*gLt
+        v1Norm = torch.sum(torch.cat([t.detach().clone().view(-1)*v.detach().clone().view(-1) for t,v in zip(v1,v1)])) # gLv*gLv
+        v2Norm = torch.sum(torch.cat([t.detach().clone().view(-1)*v.detach().clone().view(-1) for t,v in zip(v0,v1)])) # gLv*gLt
+        mmd = v0Norm + v1Norm -2.0*v2Norm
+        bDivs = list([v0Norm, v1Norm, -2.0*v2Norm, mmd])
+        dDivs = [e1+e2 for e1,e2 in zip(dDivs, bDivs)]
+        mvpNorm = mmd
+        #
+        v0Norms.update(v0Norm.item())
+        v1Norms.update(v1Norm.item())
+        mvpNorms.update(mvpNorm.item())
+        # v3 = (dL_t / dLambda) * v2: Px1
+        hyperOptimizer.zero_grad()
+        torch.autograd.backward(g0, grad_tensors=v2)
+        hyperOptimizer.step()
+        # measure elapsed time
+        batch_time.update(time.time() - end)
+        end = time.time()
+        # logger
+        if batch_idx % 200 == 0: #args.log_interval == 0:
+            logger.info('hyperTrain batch {:.0f}% ({}/{}), task_lr={:.6f}, hyper_lr={:.6f}\t'
+                #'gLtNorm {v0Norm.val:.4f} ({v0Norm.avg:.4f})\t'
+                #'gLvNorm {v1Norm.val:.4f} ({v1Norm.avg:.4f})\t'
+                #'mvpNorm {mvpNorm.val:.4f} ({mvpNorm.avg:.4f})\n'
+                'Time {batch_time.val:.3f} ({batch_time.avg:.3f})\t'
+                'Data {data_time.val:.3f} ({data_time.avg:.3f})\t'.format(
+                100.0*batch_idx/B, batch_idx, B, task_lr, hyper_lr,
+                #v0Norm=v0Norms, v1Norm=v1Norms, mvpNorm=mvpNorms,
+                batch_time=batch_time, data_time=data_time))
+    #
+    dDivs = [e/B for e in dDivs]
+    #logger.info('Epoch: {}\t Divergence: {:.4f}'.format(epoch, dDivs[-1]))
+    return dDivs
+
+def Med_innerTrain(args, Dnn_model, optimizer, device, loader, epoch, losModel, augModel, logger):
+    logger = logger
+    Dnn_model.train()
+    losModel.eval() # use fixed hyperModel parameters
+    augModel.eval() # use fixed hyperModel parameters
+    #
+    N = len(loader.dataset) # dataset size
+    B = len(loader) # number of batches
+    train_loss = 0.0
+    #
+    batch_time = AverageMeter()
+    data_time = AverageMeter()
+    losses = AverageMeter()
+    end = time.time()
+    #
+    for batch_idx, data in enumerate(loader):
+        # measure data loading time
+        data_time.update(time.time() - end)
+        # warm-up learning rate
+        lr = warmup_learning_rate(args, epoch, batch_idx, B, optimizer)
+        # model+loss
+        index = data['idx'].to(device)
+        aug_data = augModel(index, data)
+        aug_image = aug_data['image'].to(device)
+        aug_mask = aug_data['mask'].to(device)
+        output = Dnn_model(aug_image)
+        # encode = encoder(aug_image)
+        # output = decoder(encode)
+        loss = losModel(index, output, aug_mask)
+        losses.update(loss.item())
+        train_loss += loss.item()
+        optimizer.zero_grad()
+        loss.backward()
+        optimizer.step()
+        # measure elapsed time
+        batch_time.update(time.time() - end)
+        end = time.time()
+        # plot images from first batch for debugging
+        if args.plot_debug and (epoch == 0) and (batch_idx < 64):
+            fname = 'ori_train_batch_{}_{}.png'.format(batch_idx, args.dataset)
+            plot_debug_images(args, rows=2, cols=2, imgs=data['image'], fname=fname)
+            fname = 'aug_train_batch_{}_{}.png'.format(batch_idx, args.dataset)
+            plot_debug_images(args, rows=2, cols=2, imgs=aug_image, fname=fname)
+        # logger
+        if batch_idx % args.log_interval == 0:
+            logger.info('innerTrain batch {:.0f}% ({}/{}), lr={:.6f}\t'
+                'Loss {loss.val:.4f} ({loss.avg:.4f})\t'
+                'Time {batch_time.val:.3f} ({batch_time.avg:.3f})\t'
+                'Data {data_time.val:.3f} ({data_time.avg:.3f})\t'.format(
+                100.0*batch_idx/B, batch_idx, B, lr,
+                loss=losses, batch_time=batch_time, data_time=data_time))
+    #
+    train_loss /= B
+    logger.info('Epoch: {}\t Inner Train loss: {:.4f}'.format(epoch, train_loss))
+    return train_loss
 
 def innerTrain(args, Dnn_model, optimizer, device, loader, epoch, losModel, augModel, logger):
     logger = logger
@@ -588,7 +765,6 @@ def innerTrain(args, Dnn_model, optimizer, device, loader, epoch, losModel, augM
     logger.info('Epoch: {}\t Inner Train loss: {:.4f}'.format(epoch, train_loss))
     return train_loss
 
-
 def classTrain(args, encoder, decoder, optimizer, device, loader, epoch, losModel, augModel, logger):
     logger = logger
     encoder.eval() # eval encoder
@@ -647,6 +823,51 @@ def classTrain(args, encoder, decoder, optimizer, device, loader, epoch, losMode
     logger.info('Epoch: {}\t Class Train loss: {:.4f}'.format(epoch, train_loss))
     return train_loss
 
+def Med_innerTest(args, Dnn_model, device, loader, epoch, logger):
+    logger = logger
+    Dnn_model.eval() # eval encoder
+    #
+    B = len(loader) # number of batches
+    test_loss = 0.0
+    correct = 0
+    #
+    batch_time = AverageMeter()
+    losses = AverageMeter()
+    loss_fn = nn.CrossEntropyLoss(reduction='none')
+    end = time.time()
+    #
+    with torch.no_grad():
+        for batch_idx, data in enumerate(loader):
+            image = data['image'].to(device)
+            target= data['mask'].to(device)
+            # plot images for debugging
+            if args.plot_debug and (epoch == 0) and (batch_idx < 64):
+                fname = 'test_batch_{}_{}.png'.format(batch_idx, args.dataset)
+                plot_debug_images(args, rows=2, cols=2, imgs=image, fname=fname)
+            #
+            output = Dnn_model(image)
+            dice = dice_loss(F.softmax(output, dim=1).float(),
+                                F.one_hot(target, 2).permute(0, 3, 1, 2).float(),
+                                multiclass=True)
+            loss = loss_fn(output, target) + dice
+            losses.update(loss)
+            test_loss += loss
+            correct += 1-dice.item()
+            # measure elapsed time
+            batch_time.update(time.time() - end)
+            end = time.time()
+            # logger
+            if batch_idx % args.log_interval == 0:
+                logger.info('innerTest batch {:.0f}% ({}/{})\t'
+                    'Loss {loss.val:.4f} ({loss.avg:.4f})\t'
+                    'Time {batch_time.val:.3f} ({batch_time.avg:.3f})\t'.format(100.0*batch_idx/B, batch_idx, B,
+                    loss=losses, batch_time=batch_time))
+    #
+    test_loss /= B
+    acc = correct / B
+    logger.info('Epoch: {}\t Test loss: {:.4f}, accuracy: {:.4f}'.format(epoch, test_loss, acc))
+
+    return acc, test_loss
 
 def innerTest(args, encoder, decoder, device, loader, epoch, logger):
     logger = logger

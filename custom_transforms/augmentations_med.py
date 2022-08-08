@@ -8,6 +8,8 @@ from color.hsbcoloraugmenter import HsbColorAugmenter
 from color.hedcoloraugmenter import HedColorAugmenter
 import albumentations as A
 
+__all__ = ['Aug_list','aug_operator']
+
 class Hed_shift(A.ImageOnlyTransform):
     def __init__(self, factor, always_apply=False, p=0.5):
         super().__init__(always_apply, p)
@@ -179,19 +181,19 @@ def Aug_list():
         ('Contrast', 0.0, 2.0), #Contrast 7
         ('Saturation', 0.0, 2.0), #saturation 8
         ('Equalize', 0, 1), #9
-        ('AutoContract', 0, 1), #11
-        ('Rotate', -30, 30),  #Rotate 12
-        ('TranslateX', -0.45, 0.45), #TranslateX 13
-        ('TranslateY', -0.45, 0.45), #TranslateY 14
-        ('ShearX', -0.3, 0.3), #15
-        ('ShearY', -0.3, 0.3) #16
-        ]
+        ('AutoContract', 0, 1), #10
+        ('Rotate', -30, 30),  #Rotate 11
+        ('TranslateX', -0.45, 0.45), #TranslateX 12
+        ('TranslateY', -0.45, 0.45), #TranslateY 13
+        ('ShearX', -0.3, 0.3), #14
+        ('ShearY', -0.3, 0.3) #15
+        ] # total 16
     return l
 
 Aug_dict = {name: (v1, v2) for name, v1, v2 in Aug_list()}
 
-def aug_operator(name, pr, level):
-    low, high = Aug_dict[name]
+def aug_operator(idx, pr, level):
+    name, low, high = Aug_list()[idx]
     factor=(level * (high - low) + low)
     if name == "GaussNoise":
         return A.GaussNoise(var_limit=(factor,factor),p=pr)
