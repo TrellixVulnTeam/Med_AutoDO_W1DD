@@ -11,6 +11,7 @@ from custom_transforms import plot_debug_images, aug_operator
 from utils.dice_score import dice_loss, multiclass_dice_coeff, dice_coeff
 import random
 import albumentations as A
+from tqdm import tqdm
 
 _SOFTPLUS_UNITY_ = 1.4427
 _SIGMOID_UNITY_ = 2.0
@@ -97,7 +98,7 @@ class LossModel(nn.Module):
             return cls_loss
 
 class Med_LossModel(nn.Module):
-    def __init__(self, N, C, init_targets, apply, model, grad, sym, device):
+    def __init__(self, N, C, apply, model, grad, sym, device):
         """
         N : totla image size
         C : num_classes
@@ -116,25 +117,25 @@ class Med_LossModel(nn.Module):
             #soft label
             eps = 0.05 # alpha label-smoothing constant [0.05-0.2]
             diff = math.log(1.0-C+C/eps) # solution for softmax
-            initSoftTargets = diff*(F.one_hot(init_targets, num_classes=C)-0.5)
+            # initSoftTargets = diff*(F.one_hot(init_targets, num_classes=C)-0.5)
             if model == 'NONE':
-                # self.hyperW = nn.Parameter(initWeights,     requires_grad=False)
+                self.hyperW = nn.Parameter(initWeights,     requires_grad=False)
                 # self.hyperS = nn.Parameter(initSoftTargets, requires_grad=False)
                 # self.soft = False
-                self.cls_loss = nn.CrossEntropyLoss(reduction='none')
+                self.cls_loss = nn.CrossEntropyLoss()
             elif model == 'WGHT':
                 self.hyperW = nn.Parameter(initWeights,     requires_grad=grad)
-                self.hyperS = nn.Parameter(initSoftTargets, requires_grad=False)
+                # self.hyperS = nn.Parameter(initSoftTargets, requires_grad=False)
                 self.soft = False
                 self.cls_loss = nn.CrossEntropyLoss()
             elif model == 'SOFT':
                 self.hyperW = nn.Parameter(initWeights,     requires_grad=False)
-                self.hyperS = nn.Parameter(initSoftTargets, requires_grad=grad)
+                # self.hyperS = nn.Parameter(initSoftTargets, requires_grad=grad)
                 self.soft = True
                 self.cls_loss = nn.KLDivLoss(reduction='none')
             elif model == 'BOTH':
                 self.hyperW = nn.Parameter(initWeights,     requires_grad=grad)
-                self.hyperS = nn.Parameter(initSoftTargets, requires_grad=grad)
+                # self.hyperS = nn.Parameter(initSoftTargets, requires_grad=grad)
                 self.soft = True
                 self.cls_loss = nn.KLDivLoss(reduction='none')
             else:
@@ -147,8 +148,8 @@ class Med_LossModel(nn.Module):
             dice = dice_loss(F.softmax(logit, dim=1).float(),
                                 F.one_hot(target, self.num_classes).permute(0, 3, 1, 2).float(),
                                 multiclass=True)
-            loss = self.cls_loss(logit, target) + dice
-            # hyperW = _SOFTPLUS_UNITY_ * self.act(self.hyperW[idx])
+            loss = self.cls_loss(logit, target)
+            hyperW = _SOFTPLUS_UNITY_ * self.act(self.hyperW[idx])
             # hyperS = self.hyperS[idx]
             # hyperH = torch.argmax(hyperS, dim=1)
             # if self.soft:
@@ -159,14 +160,14 @@ class Med_LossModel(nn.Module):
             #         cls_loss = 1.0*torch.sum(self.cls_loss(self.actLogSoft(logit[0]), self.actSoft(hyperS)), dim=1)
             # else:
             #     cls_loss = self.cls_loss(logit[0], hyperH)
-            # cls_loss = hyperW*cls_loss
-            # cls_loss = cls_loss.mean()
-            return loss
+            cls_loss = (hyperW*(loss+dice)).mean()
+            return cls_loss, dice
         else: # always valid
             dice = dice_loss(F.softmax(logit, dim=1).float(),
                                 F.one_hot(target, self.num_classes).permute(0, 3, 1, 2).float(),
                                 multiclass=True)
-            return 1-dice.item()
+            loss = self.cls_loss(logit, target)
+            return loss, dice
 
 class AugmentModelNONE(nn.Module):
     def __init__(self):
@@ -310,7 +311,7 @@ class Med_AugmentModel(nn.Module):
         K = self.aug_ops_num
         #預設機率與強度超參數的初始值
         magnNorm = torch.ones(1)*magn/10.0 # normalize to 10 like in RandAugment
-        probNorm = torch.ones(1)*1/(K-2) # 1/(K-2) probability
+        probNorm = torch.zeros(1)*1/(K-2) # 1/(K-2) probability
         magnLogit = torch.log(magnNorm/(1-magnNorm)) # convert to logit
         probLogit = torch.log(probNorm/(1-probNorm)) # convert to logit
         # actP: 機率的激活函數，actM: 強度的激活函數
@@ -322,6 +323,7 @@ class Med_AugmentModel(nn.Module):
 
     def forward(self, idx, x):
         B,C,H,W = x['image'].shape
+        idx = idx.cpu().detach().numpy()
         device = self.device
         mode = self.mode
         if self.apply:
@@ -341,8 +343,8 @@ class Med_AugmentModel(nn.Module):
             sampleP = sampleP[:,0] #取使用那個col，1為使用
             sampleP = sampleP.reshape(K,B) #reshape回batch
             # reparametrize magnitudes
-            #sampleM = paramM[:K] * torch.rand(K,B).to(device) # KxB, prior: U[0,1]
-            sampleM = paramM[:K] * torch.randn(K,B).to(device) # KxB, prior: N(0,1)
+            sampleM = paramM[:K] * torch.rand(K,B).to(device) # KxB, prior: U[0,1]
+            # sampleM = paramM[:K] * torch.randn(K,B).to(device) # KxB, prior: N(0,1)
             img = x['image'].cpu().detach().numpy()
             mask = x['mask'].cpu().detach().numpy()
             for i in range(B):
@@ -351,7 +353,7 @@ class Med_AugmentModel(nn.Module):
                 transform = A.Compose([])
                 for p in range(K):
                     if sampleP[p,i]:
-                        transform.transforms.insert(0, aug_operator(p,1,sampleM[p,i]))
+                        transform.transforms.insert(0, aug_operator(p,1,sampleM[p,i].item()))
                 image_aug = image_aug.transpose(1,2,0)
                 image_aug = image_aug.astype(np.float32)
                 mask_aug = mask_aug.astype(np.float32)
@@ -422,30 +424,16 @@ def hyperHesTrain(args, Dnn_model, optimizer, device, valid_loader, train_loader
     for batch_idx in range(0,1*B):
         # sample val batch
         try:
-            # vData, vTarget, vIndex = next(v_loader_iterator)
-            vdata, vIndex = next(v_loader_iterator)
-            vData = vdata['image']
-            vTarget = vdata['mask']
+            vData, vTarget, vIndex = next(v_loader_iterator)
         except StopIteration:
-            # v_loader_iterator = iter(valid_loader)
-            # vData, vTarget, vIndex = next(v_loader_iterator)
             v_loader_iterator = iter(valid_loader)
-            vdata, vIndex = next(v_loader_iterator)
-            vData = vdata['image']
-            vTarget = vdata['mask']
+            vData, vTarget, vIndex = next(v_loader_iterator)
         # sample train batch
         try:
-            # tData, tTarget, tIndex = next(t_loader_iterator)
-            tdata, tIndex = next(t_loader_iterator)
-            tData = tdata['image']
-            tTarget = tdata['mask']
+            tData, tTarget, tIndex = next(t_loader_iterator)
         except StopIteration:
-            # t_loader_iterator = iter(train_loader)
-            # tData, tTarget, tIndex = next(t_loader_iterator)
             t_loader_iterator = iter(train_loader)
-            tdata, tIndex = next(t_loader_iterator)
-            tData = tdata['image']
-            tTarget = tdata['mask']
+            tData, tTarget, tIndex = next(t_loader_iterator)
         #
         tData  = tData.to(device)
         tTarget= tTarget.to(device)
@@ -590,8 +578,9 @@ def Med_hyperHesTrain(args, Dnn_model, optimizer, device, valid_loader, train_lo
         vIndex = vIndex.to(device)
 
         vOutput = Dnn_model(vImg)
-        vLoss = validLosModel(vIndex, vOutput, vMask)
-        g1 = torch.autograd.grad(vLoss, theta)
+        vLoss, vDice = validLosModel(vIndex, vOutput, vMask)
+        dice_loss = vLoss+vDice
+        g1 = torch.autograd.grad(dice_loss, theta)
         v1 = [e.detach().clone() for e in g1]
         # v0 = dL_t / dTheta: Lx1
         optimizer.zero_grad()
@@ -606,7 +595,7 @@ def Med_hyperHesTrain(args, Dnn_model, optimizer, device, valid_loader, train_lo
         tIndex = tIndex.to(device)
 
         tOutput = Dnn_model(tImg)
-        tLoss = trainLosModel(tIndex, tOutput, tMask)
+        tLoss, _ = trainLosModel(tIndex, tOutput, tMask)
         g0 = torch.autograd.grad(tLoss, theta, create_graph=True)
         v0 = [e.detach().clone() for e in g0]
         # v2 = H^-1 * v0: Lx1
@@ -638,20 +627,18 @@ def Med_hyperHesTrain(args, Dnn_model, optimizer, device, valid_loader, train_lo
         # logger
         if batch_idx % 200 == 0: #args.log_interval == 0:
             logger.info('hyperTrain batch {:.0f}% ({}/{}), task_lr={:.6f}, hyper_lr={:.6f}\t'
-                #'gLtNorm {v0Norm.val:.4f} ({v0Norm.avg:.4f})\t'
-                #'gLvNorm {v1Norm.val:.4f} ({v1Norm.avg:.4f})\t'
-                #'mvpNorm {mvpNorm.val:.4f} ({mvpNorm.avg:.4f})\n'
-                'Time {batch_time.val:.3f} ({batch_time.avg:.3f})\t'
-                'Data {data_time.val:.3f} ({data_time.avg:.3f})\t'.format(
-                100.0*batch_idx/B, batch_idx, B, task_lr, hyper_lr,
-                #v0Norm=v0Norms, v1Norm=v1Norms, mvpNorm=mvpNorms,
-                batch_time=batch_time, data_time=data_time))
+                'gLtNorm {v0Norm.val:.4f} ({v0Norm.avg:.4f})\t'
+                'gLvNorm {v1Norm.val:.4f} ({v1Norm.avg:.4f})\t'
+                'mvpNorm {mvpNorm.val:.4f} ({mvpNorm.avg:.4f})\n'
+                .format(100.0*batch_idx/B, batch_idx, B, task_lr, hyper_lr,
+                v0Norm=v0Norms, v1Norm=v1Norms, mvpNorm=mvpNorms,
+                ))
     #
     dDivs = [e/B for e in dDivs]
     #logger.info('Epoch: {}\t Divergence: {:.4f}'.format(epoch, dDivs[-1]))
     return dDivs
 
-def Med_innerTrain(args, Dnn_model, optimizer, device, loader, epoch, losModel, augModel, logger):
+def Med_innerTrain(args, Dnn_model, optimizer, scheduler, device, loader, epoch, losModel, augModel, logger):
     logger = logger
     Dnn_model.train()
     losModel.eval() # use fixed hyperModel parameters
@@ -665,21 +652,21 @@ def Med_innerTrain(args, Dnn_model, optimizer, device, loader, epoch, losModel, 
     data_time = AverageMeter()
     losses = AverageMeter()
     end = time.time()
+    pbr = tqdm(loader)
     #
-    for batch_idx, data in enumerate(loader):
+    score = 0
+    for batch_idx, data in enumerate(pbr):
         # measure data loading time
         data_time.update(time.time() - end)
         # warm-up learning rate
-        lr = warmup_learning_rate(args, epoch, batch_idx, B, optimizer)
         # model+loss
         index = data['idx'].to(device)
         aug_data = augModel(index, data)
         aug_image = aug_data['image'].to(device)
         aug_mask = aug_data['mask'].to(device)
         output = Dnn_model(aug_image)
-        # encode = encoder(aug_image)
-        # output = decoder(encode)
-        loss = losModel(index, output, aug_mask)
+        loss, dice = losModel(index, output, aug_mask)
+        score += 1-dice.item()
         losses.update(loss.item())
         train_loss += loss.item()
         optimizer.zero_grad()
@@ -688,6 +675,7 @@ def Med_innerTrain(args, Dnn_model, optimizer, device, loader, epoch, losModel, 
         # measure elapsed time
         batch_time.update(time.time() - end)
         end = time.time()
+        pbr.set_postfix({'loss' : (train_loss/(batch_idx+1)), 'score': score/(batch_idx+1)})
         # plot images from first batch for debugging
         if args.plot_debug and (epoch == 0) and (batch_idx < 64):
             fname = 'ori_train_batch_{}_{}.png'.format(batch_idx, args.dataset)
@@ -695,17 +683,15 @@ def Med_innerTrain(args, Dnn_model, optimizer, device, loader, epoch, losModel, 
             fname = 'aug_train_batch_{}_{}.png'.format(batch_idx, args.dataset)
             plot_debug_images(args, rows=2, cols=2, imgs=aug_image, fname=fname)
         # logger
-        if batch_idx % args.log_interval == 0:
-            logger.info('innerTrain batch {:.0f}% ({}/{}), lr={:.6f}\t'
-                'Loss {loss.val:.4f} ({loss.avg:.4f})\t'
-                'Time {batch_time.val:.3f} ({batch_time.avg:.3f})\t'
-                'Data {data_time.val:.3f} ({data_time.avg:.3f})\t'.format(
-                100.0*batch_idx/B, batch_idx, B, lr,
-                loss=losses, batch_time=batch_time, data_time=data_time))
-    #
+        # if batch_idx % args.log_interval == 0:
+        #     logger.info('innerTrain batch {:.0f}% ({}/{}), lr={:.6f}\t'
+        #         'Loss {loss.val:.4f} ({loss.avg:.4f})\t'.format(
+        #         100.0*batch_idx/B, batch_idx, B, lr,loss=losses))
+    score /= B
+    scheduler.step(score)
     train_loss /= B
-    logger.info('Epoch: {}\t Inner Train loss: {:.4f}'.format(epoch, train_loss))
-    return train_loss
+    logger.info('Epoch: {}\t Inner Train loss: {:.4f}, acc={:.4f}, lr={:.6f}\t'.format(epoch, train_loss, score, optimizer.param_groups[0]['lr'],loss=losses))
+    return train_loss, score
 
 def innerTrain(args, Dnn_model, optimizer, device, loader, epoch, losModel, augModel, logger):
     logger = logger
@@ -829,15 +815,16 @@ def Med_innerTest(args, Dnn_model, device, loader, epoch, logger):
     #
     B = len(loader) # number of batches
     test_loss = 0.0
-    correct = 0
+    score = 0
     #
     batch_time = AverageMeter()
     losses = AverageMeter()
-    loss_fn = nn.CrossEntropyLoss(reduction='none')
+    loss_fn = nn.CrossEntropyLoss()
     end = time.time()
+    pbr = tqdm(loader)
     #
     with torch.no_grad():
-        for batch_idx, data in enumerate(loader):
+        for batch_idx, data in enumerate(pbr):
             image = data['image'].to(device)
             target= data['mask'].to(device)
             # plot images for debugging
@@ -851,23 +838,23 @@ def Med_innerTest(args, Dnn_model, device, loader, epoch, logger):
                                 multiclass=True)
             loss = loss_fn(output, target) + dice
             losses.update(loss)
-            test_loss += loss
-            correct += 1-dice.item()
+            test_loss += loss.item()
+            score += 1-dice.item()
             # measure elapsed time
             batch_time.update(time.time() - end)
             end = time.time()
+            pbr.set_postfix({'loss' : test_loss/(batch_idx+1), 'score': score/(batch_idx+1)})
             # logger
-            if batch_idx % args.log_interval == 0:
-                logger.info('innerTest batch {:.0f}% ({}/{})\t'
-                    'Loss {loss.val:.4f} ({loss.avg:.4f})\t'
-                    'Time {batch_time.val:.3f} ({batch_time.avg:.3f})\t'.format(100.0*batch_idx/B, batch_idx, B,
-                    loss=losses, batch_time=batch_time))
+            # if batch_idx % args.log_interval == 0:
+            #     logger.info('innerTest batch {:.0f}% ({}/{})\t'
+            #         'Loss {loss.val:.4f} ({loss.avg:.4f})\t'.format(100.0*batch_idx/B, batch_idx, B,
+            #         loss=losses))
     #
     test_loss /= B
-    acc = correct / B
-    logger.info('Epoch: {}\t Test loss: {:.4f}, accuracy: {:.4f}'.format(epoch, test_loss, acc))
+    score = score / B
+    logger.info('Epoch: {}\t Test loss: {:.4f}, score: {:.4f}'.format(epoch, test_loss, score))
 
-    return acc, test_loss
+    return test_loss, score
 
 def innerTest(args, encoder, decoder, device, loader, epoch, logger):
     logger = logger

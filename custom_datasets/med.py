@@ -73,10 +73,10 @@ class MedDataset(Dataset):
 
         img = self.preprocess(img, self.scale, is_mask=False)
         mask = self.preprocess(mask, self.scale, is_mask=True)
+        img = img.astype(np.float32)
+        mask = mask.astype(np.float32)
         if self.transform is not None:
             img = img.transpose(1,2,0)
-            img = img.astype(np.float32)
-            mask = mask.astype(np.float32)
             transformed = self.transform(image=img, mask=mask)
             img = transformed['image']
             mask = transformed['mask']
@@ -160,10 +160,10 @@ class Med_MultDirDataset(Dataset):
 
         img = self.preprocess(img, self.scale, is_mask=False)
         mask = self.preprocess(mask, self.scale, is_mask=True)
+        img = img.astype(np.float32)
+        mask = mask.astype(np.float32)
         if self.transform is not None:
             img = img.transpose(1,2,0)
-            img = img.astype(np.float32)
-            mask = mask.astype(np.float32)
             transformed = self.transform(image=img, mask=mask)
             img = transformed['image']
             mask = transformed['mask']
@@ -268,6 +268,8 @@ class MedAllDataset(Dataset):
 
         img = self.preprocess(img, self.scale, is_mask=False)
         mask = self.preprocess(mask, self.scale, is_mask=True)
+        img = img.astype(np.float32)
+        mask = mask.astype(np.float32)
         return {
             'image': torch.as_tensor(img.copy()).float().contiguous(),
             'mask': torch.as_tensor(mask.copy()).long().contiguous(),

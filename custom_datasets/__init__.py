@@ -22,9 +22,9 @@ from .imagenet import ImageNet
 #from .kinetics import Kinetics400
 #from .hmdb51 import HMDB51
 #from .ucf101 import UCF101
-from .med import MedDataset
+from .med import MedDataset,Med_MultDirDataset,MedAllDataset
 
-__all__ = ('CIFAR10', 'CIFAR100', 'MNIST', 'SVHN', 'ImageNet','MedDataset')
+__all__ = ('CIFAR10', 'CIFAR100', 'MNIST', 'SVHN', 'ImageNet','MedDataset','Med_MultDirDataset','MedAllDataset')
 
 #__all__ = ('LSUN', 'LSUNClass',
 #           'ImageFolder', 'DatasetFolder', 'FakeData',

@@ -1,4 +1,3 @@
-# python3 implicit-augment.py -r run0 --gpu 0 --dataset med --aug-model SEP --los-model NONE --hyper-opt HES
 from __future__ import print_function
 import argparse, os, sys, random, time, datetime
 import numpy as np
@@ -17,13 +16,30 @@ from custom_datasets import *
 from custom_transforms import *
 from utils import *
 import logging
+import matplotlib.pyplot as plt
+
+# python implicit-augment.py -r run1 --gpu 0 -nr 0.0 -ir 1 --dataset med --epochs 20
+# python implicit-augment.py -r run1 --gpu 1 -nr 0.0 -ir 1 --dataset med --epochs 20 --aug-model SEP --los-model NONE --hyper-opt HES
+
+os.environ['CUDA_VISIBLE_DEVICES'] = '0,1'
+
+def seed_it(seed):
+    torch.manual_seed(seed)
+    random.seed(seed)
+    np.random.seed(seed)
+    torch.cuda.manual_seed(seed)
+    torch.cuda.manual_seed_all(seed)
+    # torch.backends.cudnn.deterministic = True
+    # torch.backends.cudnn.benchmark = True
+    # torch.backends.cudnn.enabled = True
+seed_it(0)
 
 def get_args():
     parser = argparse.ArgumentParser(description='AutoDO using Implicit Differentiation')
     parser.add_argument('--data', default='./local_data', type=str, metavar='NAME',
                         help='folder to save all data')
-    parser.add_argument('--dataset', default='MNIST', type=str, metavar='NAME',
-                        help='dataset MNIST/CIFAR10/CIFAR100/SVHN/SVHN_extra/ImageNet')
+    parser.add_argument('--dataset', default='med', type=str, metavar='NAME',
+                        help='dataset MNIST/CIFAR10/CIFAR100/SVHN/SVHN_extra/ImageNet/med')
     parser.add_argument('--scale', '-s', type=float, default=1, help='Downscaling factor of the images')
     parser.add_argument('--workers', default=4, type=int, metavar='NUM',
                         help='number of data loading workers (default: 4)')
@@ -77,10 +93,10 @@ def get_args():
     return args
 
 def main(args):
-    wsi_Good_patch_path = '/mnt/Nami/Med_patch_512/Good'
-    mask_Good_patch_path = '/mnt/Nami/Med_patch_512/Good_mask'
-    val_wsi_Good_patch_path = '/mnt/Nami/Med_test_patch_512/Good'
-    val_mask_Good_patch_path = '/mnt/Nami/Med_test_patch_512/Good_mask'
+    wsi_Good_patch_path = '/home/rayeh/workspace/project/med/data/Med_patch_512/Good'
+    mask_Good_patch_path = '/home/rayeh/workspace/project/med/data/Med_patch_512/Good_mask'
+    val_wsi_Good_patch_path = '/home/rayeh/workspace/project/med/data/Med_test_patch_512/Good'
+    val_mask_Good_patch_path = '/home/rayeh/workspace/project/med/data/Med_test_patch_512/Good_mask'
     #提取args
     args.hyper_est = True
     args.lr_warm = True
@@ -97,7 +113,7 @@ def main(args):
     model_postfix = 'ir_{}_sr_{}_nr_{}'.format(imbalance_ratio, subsample_ratio, noise_ratio)
     run_folder = args.run_folder
     #設定log
-    log_file = f"./Log/autodo_{dataset}_{model_postfix}.log"
+    log_file = f"./Log/autodo_{dataset}_{run_folder}_{model_postfix}_{args.aug_model}_{args.los_model}_{hyper_opt}.log"
     logger = Log(__name__, log_file).getlog()
     logger.info(args)
     #設定GPU
@@ -121,29 +137,40 @@ def main(args):
     if not os.path.isdir(model_folder):
         os.mkdir(model_folder)
     # shared among datasets
-    task_optimizer = 'sgd'
-    task_momentum = 0.9
-    task_weight_decay = 0.0001
-    task_nesterov = True
+    # task_optimizer = 'sgd'
+    # task_momentum = 0.9
+    # task_weight_decay = 0.0001
+    # task_nesterov = True
     aug_mode = 0
     #create dataset
     aug_K, aug_M = 2, 5
+    valid_images = None
+    train_images = None
     if dataset == 'med':
         # data:
-        #train data: WSI 1~5
-        train_data = MedDataset(wsi_Good_patch_path, mask_Good_patch_path, img_scale)
-        #test data: WSI 6
-        test_data = MedDataset(val_wsi_Good_patch_path, val_mask_Good_patch_path, img_scale)
-        total_images = len(train_data)
-        valid_images = int(total_images*0.2)
-        train_images = total_images - valid_images
+        if run_folder == 'run0':
+            #train data: WSI 1~5
+            train_data = MedDataset(wsi_Good_patch_path, mask_Good_patch_path, img_scale)
+            total_images = len(train_data)
+            #test data: WSI 6
+            test_data = MedDataset(val_wsi_Good_patch_path, val_mask_Good_patch_path, img_scale)
+            valid_images = 0.2
+        elif run_folder == 'run1':
+            train_data = Med_MultDirDataset([wsi_Good_patch_path,val_wsi_Good_patch_path],[mask_Good_patch_path,val_mask_Good_patch_path])
+            total_images = len(train_data)
+            test_images = int(total_images*0.1)
+            total_images = total_images - test_images
+            train_data, test_data = random_split(train_data, [total_images,test_images])
+            valid_images = 0.2
+        elif run_folder == 'run2':
+            pass
         num_classes = 2
         num_channels = 3
         hyperEpochStart = 5
         # WideResNet model:
         task_lr = 0.00001
         train_batch_size = 4 #32
-        hyper_batch_size = 4 #32
+        hyper_batch_size = 2 #32
         args.hyper_theta = ['cls']
         model_name = 'UNet'#'wresnet28_10'
         Dnn_model = UNet(n_channels=3, n_classes=num_classes, bilinear=False).to(device)
@@ -156,14 +183,18 @@ def main(args):
     if os.path.isfile(data_file):
         if dataset == 'med':
             valid_sub_indices, train_sub_indices = torch.load(data_file) # load saved indices
+            valid_images = len(valid_sub_indices)
+            train_images = len(train_sub_indices)
         else:
             valid_sub_indices, train_sub_indices, train_targets = torch.load(data_file) # load saved indices
     else:
         if dataset == 'med':
             rs = ShuffleSplit(n_splits=5, test_size=valid_images, random_state=0)
-            rs = rs.split(list(range(len(total_images))))
+            rs = rs.split(list(range(len(train_data))))
             for _ in range(random.randint(1,5)):
                 train_indices, valid_indices = next(rs)
+            valid_images = len(valid_indices)
+            train_images = len(train_indices)
             train_indices, valid_indices = list(train_indices), list(valid_indices)
             valid_sub_indices = valid_indices
             # save targets for soft label estimation
@@ -351,6 +382,7 @@ def main(args):
             args.hyper_lr_warmup_to = args.hyper_lr
     #
     optimizer = optim.RMSprop(Dnn_model.parameters(), lr=args.lr, weight_decay=1e-8, momentum=0.9)
+    scheduler = optim.lr_scheduler.ReduceLROnPlateau(optimizer, 'max', patience=3)  # goal: maximize Dice score
     # list model layers
     #for n, p in encoder.named_parameters():
     #    logger.info (n, p.data.shape)
@@ -366,12 +398,12 @@ def main(args):
     if hyper_est:
         # validLosModel = LossModel(N=1, C=num_classes, init_targets=list(), apply=False, model='NONE', grad=False, sym=False, device=device).to(device)
         # validAugModel = AugmentModel(N=1, magn=aug_M, apply=False, mode=aug_mode, grad=False, device=device).to(device)
-        validLosModel = Med_LossModel(N=1, C=num_classes, init_targets=list(), apply=False, model='NONE', grad=False, sym=False, device=device).to(device)
+        validLosModel = Med_LossModel(N=1, C=num_classes, apply=False, model='NONE', grad=False, sym=False, device=device).to(device)
         validAugModel = Med_AugmentModel(N=1, magn=aug_M, apply=False, mode=aug_mode, grad=False, device=device).to(device)
     # train data loss/augmentation models
     symmetricKlEnable = False if (imbalance_ratio == 1) and (noise_ratio == 0.0) else True
     # trainLosModel = LossModel(N=T, C=num_classes, init_targets=train_targets, apply=True, model=args.los_model, grad=hyperGradEnable, sym=symmetricKlEnable, device=device).to(device)
-    trainLosModel = Med_LossModel(N=T, C=num_classes, init_targets=train_targets, apply=True, model=args.los_model, grad=hyperGradEnable, sym=symmetricKlEnable, device=device).to(device)
+    trainLosModel = Med_LossModel(N=T, C=num_classes, apply=True, model=args.los_model, grad=hyperGradEnable, sym=symmetricKlEnable, device=device).to(device)
     # select model
     if   args.aug_model in ['NONE', 'RAND', 'AUTO', 'DADA']:
         # trainAugModel = AugmentModel(N=1, magn=aug_M, apply=False, mode=aug_mode, grad=False,           device=device).to(device)
@@ -389,7 +421,7 @@ def main(args):
     hyperOptimizer = optim.RMSprop(hyperParams, lr=args.hyper_lr)
     hyperScheduler = torch.optim.lr_scheduler.CosineAnnealingLR(hyperOptimizer, args.epochs-args.hyper_start)
     # initial step to save pretrained model
-    best_acc = 0.0
+    best_test_score = 0.0
     run_date = datetime.datetime.now().strftime("%Y-%m-%d-%H:%M:%S")
     if overfit:
         model_name = 'overfit_' + model_name
@@ -412,6 +444,10 @@ def main(args):
     #logger.info('Run: {}/{} - {}\n'.format(model_folder, run_name, run_date))
     logger.info('Run: {}/{}'.format(model_folder, run_name))
     dDivs = 4*[0.0]
+    exp_history={
+        'train': [],
+        'test': [],
+    }
     for epoch in range(0, args.epochs):
         logger.info('{:.0f}% ({}/{})'.format(100.0*epoch/args.epochs, epoch, args.epochs))
         adjust_learning_rate(args, optimizer, epoch)
@@ -430,27 +466,64 @@ def main(args):
                             trainLosModel, trainAugModel, validLosModel, validAugModel, hyperOptimizer, logger)
             # train encoder and classifier
             # train_loss = innerTrain(args, Dnn_model, optimizer, device, train_loader, epoch, trainLosModel, trainAugModel, logger)
-            train_loss = Med_innerTrain(args, Dnn_model, optimizer, device, train_loader, epoch, trainLosModel, trainAugModel, logger)
+            train_loss, train_score = Med_innerTrain(args, Dnn_model, optimizer, scheduler, device, train_loader, epoch, trainLosModel, trainAugModel, logger)
+            exp_history['train'].append((train_loss,train_score))
         # test
         if testEnable:
-            # acc, test_loss, _ = innerTest(args, encoder, decoder, device, test_loader, epoch, logger)
-            acc, test_loss = Med_innerTest(args, Dnn_model, device, test_loader, epoch, logger)
-            # save checkpoint (acc-based)
-            if acc >= best_acc:
-                logger.info('SAVING trained model at epoch {} with {:.4f}% Dice score'.format(epoch, acc))
-                # save(encoder, decoder, trainLosModel, trainAugModel, acc, epoch, checkpoint_file)
-                Med_save(Dnn_model, trainLosModel, trainAugModel, acc, epoch, checkpoint_file)
-                best_acc = acc
+            # test_score, test_loss, _ = innerTest(args, encoder, decoder, device, test_loader, epoch, logger)
+            test_loss, test_score = Med_innerTest(args, Dnn_model, device, test_loader, epoch, logger)
+            exp_history['test'].append((test_loss,test_score))
+            # save checkpoint (test_score-based)
+            if test_score >= best_test_score:
+                logger.info('SAVING trained model at epoch {} with {:.4f} Dice score'.format(epoch, test_score))
+                # save(encoder, decoder, trainLosModel, trainAugModel, test_score, epoch, checkpoint_file)
+                Med_save(Dnn_model, trainLosModel, trainAugModel, test_score, epoch, checkpoint_file)
+                best_test_score = test_score
         else:
-            acc, test_loss = 0.0, 0.0
+            test_score, test_loss = 0.0, 0.0
         # save log
-        writer.add_scalar('Dice score', acc, epoch)
+        writer.add_scalar('Dice score', test_score, epoch)
         writer.add_scalar('Train Loss', train_loss, epoch)
         writer.add_scalar('Test Loss', test_loss, epoch)
+    script_file = os.path.realpath(sys.argv[0])
+    path = os.path.dirname(script_file)
+    if not os.path.exists(f"{path}/history"):
+        os.makedirs(f"{path}/history")
+    history_save_path = f"{path}/history/{run_name}.npz"
+    np.savez(history_save_path, 
+            train = np.array(exp_history['train']),
+            test = np.array(exp_history['test']))
+    if not os.path.exists(f"{path}/picture"):
+        os.makedirs(f"{path}/picture")
+    picture_name = f"{path}/picture/{run_name}.jpg"
+    load_and_plot(history_save_path, picture_name)
+    logger.info(f'save train history at: {picture_name}')
     #
-    logger.info('BEST trained model has {:.4f}% Dice score'.format(best_acc))
+    logger.info('BEST trained model has {:.4f} Dice score'.format(best_test_score))
     writer.flush()
     writer.close()
+
+def load_and_plot(history_path, picture_name):
+
+    model_history = np.load(history_path)
+    epoch = range(1,len(model_history['train'])+1)
+    plt.figure(figsize=(10,7))
+
+    plt.subplot(2, 1, 1)
+    plt.plot(epoch, model_history["train"][:,1], '.-',color="green",label="train score")
+    plt.plot(epoch, model_history["test"][:,1], '.-',color="black",label="test score")
+    plt.title("score vs. epoches")
+    plt.ylabel("Dice score")
+    plt.legend(loc='upper left')
+
+    plt.subplot(2, 1, 2)
+    
+    plt.plot(epoch, model_history["train"][:,0], '.-',color="green",label="train loss")
+    plt.plot(epoch, model_history["test"][:,0], '.-',color="black",label="test loss")
+    plt.title("loss vs. epoches")
+    plt.ylabel("loss")
+    plt.legend(loc='upper left')
+    plt.savefig(picture_name)
 
 if __name__ == '__main__':
     args = get_args()
