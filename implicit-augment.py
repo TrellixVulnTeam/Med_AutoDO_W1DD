@@ -8,7 +8,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim as optim
 import torch.autograd as autograd
-from torch.utils.tensorboard import SummaryWriter
+# from torch.utils.tensorboard import SummaryWriter
 from torch.utils.data import SubsetRandomSampler, Sampler, Subset, ConcatDataset, random_split
 #
 from custom_models import *
@@ -17,22 +17,25 @@ from custom_transforms import *
 from utils import *
 import logging
 import matplotlib.pyplot as plt
+import wandb
 
 # python implicit-augment.py -r run1 --gpu 0 -nr 0.0 -ir 1 --dataset med --epochs 20
-# python implicit-augment.py -r run1 --gpu 1 -nr 0.0 -ir 1 --dataset med --epochs 20 --aug-model SEP --los-model NONE --hyper-opt HES
+# python implicit-augment.py -r run1 --gpu 0 -nr 0.0 -ir 1 --dataset med --epochs 20 --aug-model SEP --los-model NONE --hyper-opt HES
+# python implicit-augment.py -r run0 --gpu 1 -nr 0.0 -ir 1 --dataset med --epochs 20 --aug-model SEP --los-model NONE --hyper-opt HES
+# python implicit-augment.py -r run2 --gpu 0 -nr 0.0 -ir 1 --dataset med --epochs 20 --aug-model SEP --los-model NONE --hyper-opt HES
 
 os.environ['CUDA_VISIBLE_DEVICES'] = '0,1'
 
-def seed_it(seed):
-    torch.manual_seed(seed)
-    random.seed(seed)
-    np.random.seed(seed)
-    torch.cuda.manual_seed(seed)
-    torch.cuda.manual_seed_all(seed)
-    # torch.backends.cudnn.deterministic = True
-    # torch.backends.cudnn.benchmark = True
-    # torch.backends.cudnn.enabled = True
-seed_it(0)
+# def seed_it(seed):
+#     torch.manual_seed(seed)
+#     random.seed(seed)
+#     np.random.seed(seed)
+#     torch.cuda.manual_seed(seed)
+#     torch.cuda.manual_seed_all(seed)
+#     # torch.backends.cudnn.deterministic = True
+#     # torch.backends.cudnn.benchmark = True
+#     # torch.backends.cudnn.enabled = True
+# seed_it(0)
 
 def get_args():
     parser = argparse.ArgumentParser(description='AutoDO using Implicit Differentiation')
@@ -47,7 +50,7 @@ def get_args():
                         help='number of epochs to train (default: 200)')
     parser.add_argument('--lr-decay-rate', type=float, default=0.1, metavar='LR',
                         help='learning rate decay (default: 0.1)')
-    parser.add_argument('--lr-decay-epochs', type=str, default='150,175,195', metavar='LR',
+    parser.add_argument('--lr-decay-epochs', type=str, default='5,10,15', metavar='LR',
                         help='learning rate decay epochs (default: 150,175,195')
     parser.add_argument('--lr-warm-epochs', type=int, default=5, metavar='LR',
                         help='number using cosine annealing (default: False')
@@ -95,6 +98,8 @@ def get_args():
 def main(args):
     wsi_Good_patch_path = '/home/rayeh/workspace/project/med/data/Med_patch_512/Good'
     mask_Good_patch_path = '/home/rayeh/workspace/project/med/data/Med_patch_512/Good_mask'
+    temp_wsi_Good_patch_path = '/home/rayeh/workspace/project/med/data/data_512/imgs'
+    temp_mask_Good_patch_path = '/home/rayeh/workspace/project/med/data/data_512/masks'
     val_wsi_Good_patch_path = '/home/rayeh/workspace/project/med/data/Med_test_patch_512/Good'
     val_mask_Good_patch_path = '/home/rayeh/workspace/project/med/data/Med_test_patch_512/Good_mask'
     #提取args
@@ -116,6 +121,14 @@ def main(args):
     log_file = f"./Log/autodo_{dataset}_{run_folder}_{model_postfix}_{args.aug_model}_{args.los_model}_{hyper_opt}.log"
     logger = Log(__name__, log_file).getlog()
     logger.info(args)
+    if hyper_est and hyper_opt=='HES':
+        experiment_name = f'autodo_{dataset}_{run_folder}_{model_postfix}_{args.aug_model}_{args.los_model}_{hyper_opt}'
+        print(experiment_name)
+        experiment = wandb.init(project='autodo', resume='allow', anonymous='must', name=experiment_name)
+        experiment.config.update(dict(epochs=args.epochs, batch_size=4, learning_rate=0.00001,run_folder=run_folder,
+                                        imbalance_ratio=imbalance_ratio, subsample_ratio=subsample_ratio, noise_ratio=noise_ratio,
+                                        aug_model=args.aug_model, los_model=args.los_model, hyper_opt=hyper_opt))
+
     #設定GPU
     os.environ['CUDA_VISIBLE_DEVICES'] = args.gpu
     use_cuda = not args.no_cuda and torch.cuda.is_available()
@@ -136,11 +149,7 @@ def main(args):
     print('model_folder:', model_folder)
     if not os.path.isdir(model_folder):
         os.mkdir(model_folder)
-    # shared among datasets
-    # task_optimizer = 'sgd'
-    # task_momentum = 0.9
-    # task_weight_decay = 0.0001
-    # task_nesterov = True
+
     aug_mode = 0
     #create dataset
     aug_K, aug_M = 2, 5
@@ -159,14 +168,19 @@ def main(args):
             train_data = Med_MultDirDataset([wsi_Good_patch_path,val_wsi_Good_patch_path],[mask_Good_patch_path,val_mask_Good_patch_path])
             total_images = len(train_data)
             test_images = int(total_images*0.1)
-            total_images = total_images - test_images
-            train_data, test_data = random_split(train_data, [total_images,test_images])
+            train_images = total_images - test_images
+            train_data, test_data = random_split(train_data, [train_images,test_images])
             valid_images = 0.2
-        elif run_folder == 'run2':
-            pass
+        elif run_folder == 'run2': #for test
+            #train data: WSI 1~5
+            train_data = MedDataset(temp_wsi_Good_patch_path, temp_mask_Good_patch_path, img_scale)
+            total_images = len(train_data)
+            #test data: WSI 6
+            test_data = MedDataset(temp_wsi_Good_patch_path, temp_mask_Good_patch_path, img_scale)
+            valid_images = 0.2
         num_classes = 2
         num_channels = 3
-        hyperEpochStart = 5
+        hyperEpochStart = 2
         # WideResNet model:
         task_lr = 0.00001
         train_batch_size = 4 #32
@@ -174,8 +188,6 @@ def main(args):
         args.hyper_theta = ['cls']
         model_name = 'UNet'#'wresnet28_10'
         Dnn_model = UNet(n_channels=3, n_classes=num_classes, bilinear=False).to(device)
-        # encoder = EncoderWideResNet(depth=28, widen_factor=10, num_classes=num_classes).to(device)
-        # decoder = SupCeWideResNet(name=model_name, num_classes=num_classes).to(device)
     else:
         raise NotImplementedError('{} is not supported dataset!'.format(dataset))
     # dataloaders: 根據設定的ir、sr、nr去建立dataloader
@@ -383,11 +395,6 @@ def main(args):
     #
     optimizer = optim.RMSprop(Dnn_model.parameters(), lr=args.lr, weight_decay=1e-8, momentum=0.9)
     scheduler = optim.lr_scheduler.ReduceLROnPlateau(optimizer, 'max', patience=3)  # goal: maximize Dice score
-    # list model layers
-    #for n, p in encoder.named_parameters():
-    #    logger.info (n, p.data.shape)
-    # for n, p in decoder.named_parameters():
-    #     print(n, p.data.shape)
     # hyper models
     T = total_images
     L = len(test_loader.dataset)
@@ -396,24 +403,18 @@ def main(args):
     logger.info('Test/Valid/Train Split: {}/{}/{} out of total {} train images'.format(L,M,N,T))
     # validation data loss/augmentation model
     if hyper_est:
-        # validLosModel = LossModel(N=1, C=num_classes, init_targets=list(), apply=False, model='NONE', grad=False, sym=False, device=device).to(device)
-        # validAugModel = AugmentModel(N=1, magn=aug_M, apply=False, mode=aug_mode, grad=False, device=device).to(device)
         validLosModel = Med_LossModel(N=1, C=num_classes, apply=False, model='NONE', grad=False, sym=False, device=device).to(device)
-        validAugModel = Med_AugmentModel(N=1, magn=aug_M, apply=False, mode=aug_mode, grad=False, device=device).to(device)
+        validAugModel = Med_AugmentModel_2(N=1, magn=aug_M, apply=False, mode=aug_mode, grad=False, device=device).to(device)
     # train data loss/augmentation models
     symmetricKlEnable = False if (imbalance_ratio == 1) and (noise_ratio == 0.0) else True
-    # trainLosModel = LossModel(N=T, C=num_classes, init_targets=train_targets, apply=True, model=args.los_model, grad=hyperGradEnable, sym=symmetricKlEnable, device=device).to(device)
     trainLosModel = Med_LossModel(N=T, C=num_classes, apply=True, model=args.los_model, grad=hyperGradEnable, sym=symmetricKlEnable, device=device).to(device)
     # select model
     if   args.aug_model in ['NONE', 'RAND', 'AUTO', 'DADA']:
-        # trainAugModel = AugmentModel(N=1, magn=aug_M, apply=False, mode=aug_mode, grad=False,           device=device).to(device)
-        trainAugModel = Med_AugmentModel(N=1, magn=aug_M, apply=False, mode=aug_mode, grad=False,           device=device).to(device)
+        trainAugModel = Med_AugmentModel_2(N=1, magn=aug_M, apply=False, mode=aug_mode, grad=False,           device=device).to(device)
     elif args.aug_model == 'SHA':
-        # trainAugModel = AugmentModel(N=1, magn=aug_M, apply=True,  mode=aug_mode, grad=hyperGradEnable, device=device).to(device)
-        trainAugModel = Med_AugmentModel(N=1, magn=aug_M, apply=True,  mode=aug_mode, grad=hyperGradEnable, device=device).to(device)
+        trainAugModel = Med_AugmentModel_2(N=1, magn=aug_M, apply=True,  mode=aug_mode, grad=hyperGradEnable, device=device).to(device)
     elif args.aug_model == 'SEP':
-        # trainAugModel = AugmentModel(N=T, magn=aug_M, apply=True,  mode=aug_mode, grad=hyperGradEnable, device=device).to(device)
-        trainAugModel = Med_AugmentModel(N=T, magn=aug_M, apply=True,  mode=aug_mode, grad=hyperGradEnable, device=device).to(device)
+        trainAugModel = Med_AugmentModel_2(N=T, magn=aug_M, apply=True,  mode=aug_mode, grad=hyperGradEnable, device=device).to(device)
     else:
         raise NotImplementedError('{} is not supported train augmentation model!'.format(args.aug_model))
     # hyperoptimizer
@@ -429,7 +430,7 @@ def main(args):
         model_name = 'oversplit_' + model_name
     run_name = '{}_opt_{}_est_{}_aug_model_{}_los_model_{}_{}'.format(
         model_name, hyper_opt, hyper_est, args.aug_model, args.los_model, model_postfix)
-    writer = SummaryWriter('./logs/{}/{}_{}_{}'.format(dataset, run_folder, run_name, run_date))
+    # writer = SummaryWriter('./logs/{}/{}_{}_{}'.format(dataset, run_folder, run_name, run_date))
     checkpoint_file = '{}/best_{}.pt'.format(model_folder, run_name)
     # load hypermodel with estimated hyperparameters
     if not(hyper_est):
@@ -448,11 +449,12 @@ def main(args):
         'train': [],
         'test': [],
     }
+    global_img_step = 0
     for epoch in range(0, args.epochs):
         logger.info('{:.0f}% ({}/{})'.format(100.0*epoch/args.epochs, epoch, args.epochs))
         adjust_learning_rate(args, optimizer, epoch)
-        testEnable  = True #if  (epoch >= hyperEpochStart) else False
-        hyperEnable = True if ((epoch >  hyperEpochStart) and hyperGradEnable)  else False
+        testEnable  = False#True #if  (epoch >= hyperEpochStart) else False
+        hyperEnable = True #if ((epoch >  hyperEpochStart) and hyperGradEnable)  else False
         if not(hyper_est): # train classifier only
             pass
             # train_loss = classTrain(args, encoder, decoder, optimizer, device, train_loader, epoch, trainLosModel, trainAugModel, logger)
@@ -460,48 +462,43 @@ def main(args):
             # train hyperparameters
             if hyper_opt == 'HES' and hyperEnable:
                 hyper_adjust_learning_rate(args, hyperOptimizer, epoch-hyperEpochStart)
-                # dDivs = hyperHesTrain(args, Dnn_model, optimizer, device, valid_loader, hyper_loader, epoch, hyperEpochStart,
-                #             trainLosModel, trainAugModel, validLosModel, validAugModel, hyperOptimizer, logger)
-                dDivs = Med_hyperHesTrain(args, Dnn_model, optimizer, device, valid_loader, hyper_loader, epoch, hyperEpochStart,
-                            trainLosModel, trainAugModel, validLosModel, validAugModel, hyperOptimizer, logger)
+                dDivs, global_img_step = Med_hyperHesTrain(args, Dnn_model, optimizer, device, valid_loader, hyper_loader, epoch, hyperEpochStart,
+                            trainLosModel, trainAugModel, validLosModel, validAugModel, hyperOptimizer, logger, experiment, global_img_step)
             # train encoder and classifier
-            # train_loss = innerTrain(args, Dnn_model, optimizer, device, train_loader, epoch, trainLosModel, trainAugModel, logger)
-            train_loss, train_score = Med_innerTrain(args, Dnn_model, optimizer, scheduler, device, train_loader, epoch, trainLosModel, trainAugModel, logger)
+            train_loss, train_score, global_img_step = Med_innerTrain(args, Dnn_model, optimizer, scheduler, device, train_loader, epoch, trainLosModel, trainAugModel, logger, experiment, global_img_step, hyperEnable)
             exp_history['train'].append((train_loss,train_score))
         # test
         if testEnable:
-            # test_score, test_loss, _ = innerTest(args, encoder, decoder, device, test_loader, epoch, logger)
             test_loss, test_score = Med_innerTest(args, Dnn_model, device, test_loader, epoch, logger)
             exp_history['test'].append((test_loss,test_score))
             # save checkpoint (test_score-based)
             if test_score >= best_test_score:
                 logger.info('SAVING trained model at epoch {} with {:.4f} Dice score'.format(epoch, test_score))
-                # save(encoder, decoder, trainLosModel, trainAugModel, test_score, epoch, checkpoint_file)
                 Med_save(Dnn_model, trainLosModel, trainAugModel, test_score, epoch, checkpoint_file)
                 best_test_score = test_score
         else:
             test_score, test_loss = 0.0, 0.0
         # save log
-        writer.add_scalar('Dice score', test_score, epoch)
-        writer.add_scalar('Train Loss', train_loss, epoch)
-        writer.add_scalar('Test Loss', test_loss, epoch)
+        # writer.add_scalar('Dice score', test_score, epoch)
+        # writer.add_scalar('Train Loss', train_loss, epoch)
+        # writer.add_scalar('Test Loss', test_loss, epoch)
     script_file = os.path.realpath(sys.argv[0])
     path = os.path.dirname(script_file)
     if not os.path.exists(f"{path}/history"):
         os.makedirs(f"{path}/history")
-    history_save_path = f"{path}/history/{run_name}.npz"
+    history_save_path = f"{path}/history/{run_folder}_{run_name}.npz"
     np.savez(history_save_path, 
             train = np.array(exp_history['train']),
             test = np.array(exp_history['test']))
     if not os.path.exists(f"{path}/picture"):
         os.makedirs(f"{path}/picture")
-    picture_name = f"{path}/picture/{run_name}.jpg"
+    picture_name = f"{path}/picture/{run_folder}_{run_name}.jpg"
     load_and_plot(history_save_path, picture_name)
     logger.info(f'save train history at: {picture_name}')
     #
     logger.info('BEST trained model has {:.4f} Dice score'.format(best_test_score))
-    writer.flush()
-    writer.close()
+    # writer.flush()
+    # writer.close()
 
 def load_and_plot(history_path, picture_name):
 

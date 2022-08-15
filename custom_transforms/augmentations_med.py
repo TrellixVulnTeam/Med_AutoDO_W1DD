@@ -8,7 +8,7 @@ from color.hsbcoloraugmenter import HsbColorAugmenter
 from color.hedcoloraugmenter import HedColorAugmenter
 import albumentations as A
 
-__all__ = ['Aug_list','aug_operator']
+__all__ = ['Aug_list','aug_operator','Aug_list_tensor']
 
 class Hed_shift(A.ImageOnlyTransform):
     def __init__(self, factor, always_apply=False, p=0.5):
@@ -171,23 +171,43 @@ class Aug_Equalize(A.ImageOnlyTransform):
 
 def Aug_list():
     l = [
-        ('GaussNoise', 100, 1000), #0
-        ('GaussianBlur', 0, 13), #1
-        ('ElasticTransform', 0, 1),# 2
+        # ('GaussNoise', 100, 1000), #0
+        # ('GaussianBlur', 0, 13), #1
+        # ('ElasticTransform', 0, 1),# 2
         ('Hed', 0.0, 0.3), #3
         ('Hsv', 0.0, 0.3), #4
-        ('Sharpen', 0.0, 1.0), #5
-        ('Brightness', 0.0, 2.0), #Brightness 6
-        ('Contrast', 0.0, 2.0), #Contrast 7
-        ('Saturation', 0.0, 2.0), #saturation 8
-        ('Equalize', 0, 1), #9
-        ('AutoContract', 0, 1), #10
-        ('Rotate', -30, 30),  #Rotate 11
-        ('TranslateX', -0.45, 0.45), #TranslateX 12
-        ('TranslateY', -0.45, 0.45), #TranslateY 13
-        ('ShearX', -0.3, 0.3), #14
-        ('ShearY', -0.3, 0.3) #15
+        # ('Sharpen', 0.0, 1.0), #5
+        # ('Brightness', 0.0, 2.0), #Brightness 6 ok
+        # ('Contrast', 0.0, 2.0), #Contrast 7 ok
+        # ('Saturation', 0.0, 2.0), #saturation 8 ok
+        # ('Equalize', 0, 1), #9 NO
+        # ('AutoContract', 0, 1), #10 NO
+        # ('Rotate', -30, 30),  #Rotate 11 ok
+        # ('TranslateX', -0.45, 0.45), #TranslateX 12 ok
+        # ('TranslateY', -0.45, 0.45), #TranslateY 13 ok
+        # ('ShearX', -0.3, 0.3), #14 ok
+        # ('ShearY', -0.3, 0.3) #15 ok
         ] # total 16
+    return l
+
+def Aug_list_tensor():
+    l = [
+        ('brightness', [0]), #0
+        ('contrast', [1]), #1
+        ('saturation', [2]),# 2
+        ('Hsv', [3,4,5]), #3
+        ('Hed', [6,7,8]), #4
+        ('gaussian blur', [9]), #5
+        ('sharpen', [11]), # 6 ok
+        ('gaussian noise', [10]), # 7 ok
+        ('elastic transform', [12]), # 8 ok
+        ('Rotate', [13]),  # 9 ok
+        ('TranslateX', [14]), # 10 ok
+        ('TranslateY', [15]), # 11 ok
+        ('ShearX', [16]), # 12 ok
+        ('ShearY', [17]), # 13 ok
+        ('Equalize', [0]), # 14 NO
+        ] # total 15
     return l
 
 Aug_dict = {name: (v1, v2) for name, v1, v2 in Aug_list()}

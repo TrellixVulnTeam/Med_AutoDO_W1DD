@@ -1,0 +1,93 @@
+[2022-08-15 20:52:04,029] implicit-augment.py->main line:123 [INFO]Namespace(aug_model='SEP', data='./local_data', dataset='med', epochs=20, gpu='0', hyper_alpha=0.01, hyper_beta=0, hyper_est=True, hyper_gamma=0, hyper_iters=5, hyper_opt='HES', hyper_steps=0, imbalance_ratio=1, log_interval=500, los_model='NONE', lr_cosine=True, lr_decay_epochs='5,10,15', lr_decay_rate=0.1, lr_warm=True, lr_warm_epochs=5, no_cuda=False, noise_ratio=0.0, overfit=False, oversplit=False, plot_debug=False, run_folder='run2', scale=1, subsample_ratio=1.0, workers=4)
+[2022-08-15 20:52:09,890] implicit-augment.py->main line:337 [INFO]Valid/Train Split: 3/9
+[2022-08-15 20:52:09,892] implicit-augment.py->main line:403 [INFO]Test/Valid/Train Split: 12/3/9 out of total 12 train images
+[2022-08-15 20:52:09,894] implicit-augment.py->main line:446 [INFO]Run: ./local_data/med/run2/UNet_opt_HES_est_True_aug_model_SEP_los_model_NONE_ir_1_sr_1.0_nr_0.0
+[2022-08-15 20:52:09,895] implicit-augment.py->main line:454 [INFO]0% (0/20)
+[2022-08-15 20:54:57,492] implicit-augment.py->main line:123 [INFO]Namespace(aug_model='SEP', data='./local_data', dataset='med', epochs=20, gpu='0', hyper_alpha=0.01, hyper_beta=0, hyper_est=True, hyper_gamma=0, hyper_iters=5, hyper_opt='HES', hyper_steps=0, imbalance_ratio=1, log_interval=500, los_model='NONE', lr_cosine=True, lr_decay_epochs='5,10,15', lr_decay_rate=0.1, lr_warm=True, lr_warm_epochs=5, no_cuda=False, noise_ratio=0.0, overfit=False, oversplit=False, plot_debug=False, run_folder='run2', scale=1, subsample_ratio=1.0, workers=4)
+[2022-08-15 20:55:03,033] implicit-augment.py->main line:337 [INFO]Valid/Train Split: 3/9
+[2022-08-15 20:55:03,036] implicit-augment.py->main line:403 [INFO]Test/Valid/Train Split: 12/3/9 out of total 12 train images
+[2022-08-15 20:55:03,037] implicit-augment.py->main line:446 [INFO]Run: ./local_data/med/run2/UNet_opt_HES_est_True_aug_model_SEP_los_model_NONE_ir_1_sr_1.0_nr_0.0
+[2022-08-15 20:55:03,038] implicit-augment.py->main line:454 [INFO]0% (0/20)
+[2022-08-15 20:55:53,557] implicit-augment.py->main line:123 [INFO]Namespace(aug_model='SEP', data='./local_data', dataset='med', epochs=20, gpu='0', hyper_alpha=0.01, hyper_beta=0, hyper_est=True, hyper_gamma=0, hyper_iters=5, hyper_opt='HES', hyper_steps=0, imbalance_ratio=1, log_interval=500, los_model='NONE', lr_cosine=True, lr_decay_epochs='5,10,15', lr_decay_rate=0.1, lr_warm=True, lr_warm_epochs=5, no_cuda=False, noise_ratio=0.0, overfit=False, oversplit=False, plot_debug=False, run_folder='run2', scale=1, subsample_ratio=1.0, workers=4)
+[2022-08-15 20:55:59,294] implicit-augment.py->main line:337 [INFO]Valid/Train Split: 3/9
+[2022-08-15 20:55:59,297] implicit-augment.py->main line:403 [INFO]Test/Valid/Train Split: 12/3/9 out of total 12 train images
+[2022-08-15 20:55:59,298] implicit-augment.py->main line:446 [INFO]Run: ./local_data/med/run2/UNet_opt_HES_est_True_aug_model_SEP_los_model_NONE_ir_1_sr_1.0_nr_0.0
+[2022-08-15 20:55:59,298] implicit-augment.py->main line:454 [INFO]0% (0/20)
+[2022-08-15 21:00:59,985] implicit-augment.py->main line:123 [INFO]Namespace(aug_model='SEP', data='./local_data', dataset='med', epochs=20, gpu='0', hyper_alpha=0.01, hyper_beta=0, hyper_est=True, hyper_gamma=0, hyper_iters=5, hyper_opt='HES', hyper_steps=0, imbalance_ratio=1, log_interval=500, los_model='NONE', lr_cosine=True, lr_decay_epochs='5,10,15', lr_decay_rate=0.1, lr_warm=True, lr_warm_epochs=5, no_cuda=False, noise_ratio=0.0, overfit=False, oversplit=False, plot_debug=False, run_folder='run2', scale=1, subsample_ratio=1.0, workers=4)
+[2022-08-15 21:01:05,615] implicit-augment.py->main line:337 [INFO]Valid/Train Split: 3/9
+[2022-08-15 21:01:05,617] implicit-augment.py->main line:403 [INFO]Test/Valid/Train Split: 12/3/9 out of total 12 train images
+[2022-08-15 21:01:05,619] implicit-augment.py->main line:446 [INFO]Run: ./local_data/med/run2/UNet_opt_HES_est_True_aug_model_SEP_los_model_NONE_ir_1_sr_1.0_nr_0.0
+[2022-08-15 21:01:05,619] implicit-augment.py->main line:454 [INFO]0% (0/20)
+[2022-08-15 21:03:13,954] implicit-augment.py->main line:123 [INFO]Namespace(aug_model='SEP', data='./local_data', dataset='med', epochs=20, gpu='0', hyper_alpha=0.01, hyper_beta=0, hyper_est=True, hyper_gamma=0, hyper_iters=5, hyper_opt='HES', hyper_steps=0, imbalance_ratio=1, log_interval=500, los_model='NONE', lr_cosine=True, lr_decay_epochs='5,10,15', lr_decay_rate=0.1, lr_warm=True, lr_warm_epochs=5, no_cuda=False, noise_ratio=0.0, overfit=False, oversplit=False, plot_debug=False, run_folder='run2', scale=1, subsample_ratio=1.0, workers=4)
+[2022-08-15 21:03:19,491] implicit-augment.py->main line:337 [INFO]Valid/Train Split: 3/9
+[2022-08-15 21:03:19,494] implicit-augment.py->main line:403 [INFO]Test/Valid/Train Split: 12/3/9 out of total 12 train images
+[2022-08-15 21:03:19,495] implicit-augment.py->main line:446 [INFO]Run: ./local_data/med/run2/UNet_opt_HES_est_True_aug_model_SEP_los_model_NONE_ir_1_sr_1.0_nr_0.0
+[2022-08-15 21:03:19,496] implicit-augment.py->main line:454 [INFO]0% (0/20)
+[2022-08-15 21:06:05,147] implicit-augment.py->main line:123 [INFO]Namespace(aug_model='SEP', data='./local_data', dataset='med', epochs=20, gpu='0', hyper_alpha=0.01, hyper_beta=0, hyper_est=True, hyper_gamma=0, hyper_iters=5, hyper_opt='HES', hyper_steps=0, imbalance_ratio=1, log_interval=500, los_model='NONE', lr_cosine=True, lr_decay_epochs='5,10,15', lr_decay_rate=0.1, lr_warm=True, lr_warm_epochs=5, no_cuda=False, noise_ratio=0.0, overfit=False, oversplit=False, plot_debug=False, run_folder='run2', scale=1, subsample_ratio=1.0, workers=4)
+[2022-08-15 21:06:11,155] implicit-augment.py->main line:337 [INFO]Valid/Train Split: 3/9
+[2022-08-15 21:06:11,157] implicit-augment.py->main line:403 [INFO]Test/Valid/Train Split: 12/3/9 out of total 12 train images
+[2022-08-15 21:06:11,158] implicit-augment.py->main line:446 [INFO]Run: ./local_data/med/run2/UNet_opt_HES_est_True_aug_model_SEP_los_model_NONE_ir_1_sr_1.0_nr_0.0
+[2022-08-15 21:06:11,159] implicit-augment.py->main line:454 [INFO]0% (0/20)
+[2022-08-15 21:07:33,773] implicit-augment.py->main line:123 [INFO]Namespace(aug_model='SEP', data='./local_data', dataset='med', epochs=20, gpu='0', hyper_alpha=0.01, hyper_beta=0, hyper_est=True, hyper_gamma=0, hyper_iters=5, hyper_opt='HES', hyper_steps=0, imbalance_ratio=1, log_interval=500, los_model='NONE', lr_cosine=True, lr_decay_epochs='5,10,15', lr_decay_rate=0.1, lr_warm=True, lr_warm_epochs=5, no_cuda=False, noise_ratio=0.0, overfit=False, oversplit=False, plot_debug=False, run_folder='run2', scale=1, subsample_ratio=1.0, workers=4)
+[2022-08-15 21:07:39,297] implicit-augment.py->main line:337 [INFO]Valid/Train Split: 3/9
+[2022-08-15 21:07:39,299] implicit-augment.py->main line:403 [INFO]Test/Valid/Train Split: 12/3/9 out of total 12 train images
+[2022-08-15 21:07:39,301] implicit-augment.py->main line:446 [INFO]Run: ./local_data/med/run2/UNet_opt_HES_est_True_aug_model_SEP_los_model_NONE_ir_1_sr_1.0_nr_0.0
+[2022-08-15 21:07:39,301] implicit-augment.py->main line:454 [INFO]0% (0/20)
+[2022-08-15 21:08:21,920] implicit-augment.py->main line:123 [INFO]Namespace(aug_model='SEP', data='./local_data', dataset='med', epochs=20, gpu='0', hyper_alpha=0.01, hyper_beta=0, hyper_est=True, hyper_gamma=0, hyper_iters=5, hyper_opt='HES', hyper_steps=0, imbalance_ratio=1, log_interval=500, los_model='NONE', lr_cosine=True, lr_decay_epochs='5,10,15', lr_decay_rate=0.1, lr_warm=True, lr_warm_epochs=5, no_cuda=False, noise_ratio=0.0, overfit=False, oversplit=False, plot_debug=False, run_folder='run2', scale=1, subsample_ratio=1.0, workers=4)
+[2022-08-15 21:08:27,475] implicit-augment.py->main line:337 [INFO]Valid/Train Split: 3/9
+[2022-08-15 21:08:27,477] implicit-augment.py->main line:403 [INFO]Test/Valid/Train Split: 12/3/9 out of total 12 train images
+[2022-08-15 21:08:27,483] implicit-augment.py->main line:446 [INFO]Run: ./local_data/med/run2/UNet_opt_HES_est_True_aug_model_SEP_los_model_NONE_ir_1_sr_1.0_nr_0.0
+[2022-08-15 21:08:27,483] implicit-augment.py->main line:454 [INFO]0% (0/20)
+[2022-08-15 21:09:14,325] implicit-augment.py->main line:123 [INFO]Namespace(aug_model='SEP', data='./local_data', dataset='med', epochs=20, gpu='0', hyper_alpha=0.01, hyper_beta=0, hyper_est=True, hyper_gamma=0, hyper_iters=5, hyper_opt='HES', hyper_steps=0, imbalance_ratio=1, log_interval=500, los_model='NONE', lr_cosine=True, lr_decay_epochs='5,10,15', lr_decay_rate=0.1, lr_warm=True, lr_warm_epochs=5, no_cuda=False, noise_ratio=0.0, overfit=False, oversplit=False, plot_debug=False, run_folder='run2', scale=1, subsample_ratio=1.0, workers=4)
+[2022-08-15 21:09:19,880] implicit-augment.py->main line:337 [INFO]Valid/Train Split: 3/9
+[2022-08-15 21:09:19,882] implicit-augment.py->main line:403 [INFO]Test/Valid/Train Split: 12/3/9 out of total 12 train images
+[2022-08-15 21:09:19,886] implicit-augment.py->main line:446 [INFO]Run: ./local_data/med/run2/UNet_opt_HES_est_True_aug_model_SEP_los_model_NONE_ir_1_sr_1.0_nr_0.0
+[2022-08-15 21:09:19,886] implicit-augment.py->main line:454 [INFO]0% (0/20)
+[2022-08-15 21:10:34,092] implicit-augment.py->main line:123 [INFO]Namespace(aug_model='SEP', data='./local_data', dataset='med', epochs=20, gpu='0', hyper_alpha=0.01, hyper_beta=0, hyper_est=True, hyper_gamma=0, hyper_iters=5, hyper_opt='HES', hyper_steps=0, imbalance_ratio=1, log_interval=500, los_model='NONE', lr_cosine=True, lr_decay_epochs='5,10,15', lr_decay_rate=0.1, lr_warm=True, lr_warm_epochs=5, no_cuda=False, noise_ratio=0.0, overfit=False, oversplit=False, plot_debug=False, run_folder='run2', scale=1, subsample_ratio=1.0, workers=4)
+[2022-08-15 21:10:39,686] implicit-augment.py->main line:337 [INFO]Valid/Train Split: 3/9
+[2022-08-15 21:10:39,689] implicit-augment.py->main line:403 [INFO]Test/Valid/Train Split: 12/3/9 out of total 12 train images
+[2022-08-15 21:10:39,692] implicit-augment.py->main line:446 [INFO]Run: ./local_data/med/run2/UNet_opt_HES_est_True_aug_model_SEP_los_model_NONE_ir_1_sr_1.0_nr_0.0
+[2022-08-15 21:10:39,693] implicit-augment.py->main line:454 [INFO]0% (0/20)
+[2022-08-15 22:08:25,088] implicit-augment.py->main line:123 [INFO]Namespace(aug_model='SEP', data='./local_data', dataset='med', epochs=20, gpu='0', hyper_alpha=0.01, hyper_beta=0, hyper_est=True, hyper_gamma=0, hyper_iters=5, hyper_opt='HES', hyper_steps=0, imbalance_ratio=1, log_interval=500, los_model='NONE', lr_cosine=True, lr_decay_epochs='5,10,15', lr_decay_rate=0.1, lr_warm=True, lr_warm_epochs=5, no_cuda=False, noise_ratio=0.0, overfit=False, oversplit=False, plot_debug=False, run_folder='run2', scale=1, subsample_ratio=1.0, workers=4)
+[2022-08-15 22:08:30,688] implicit-augment.py->main line:337 [INFO]Valid/Train Split: 3/9
+[2022-08-15 22:08:30,690] implicit-augment.py->main line:403 [INFO]Test/Valid/Train Split: 12/3/9 out of total 12 train images
+[2022-08-15 22:08:30,694] implicit-augment.py->main line:446 [INFO]Run: ./local_data/med/run2/UNet_opt_HES_est_True_aug_model_SEP_los_model_NONE_ir_1_sr_1.0_nr_0.0
+[2022-08-15 22:08:30,694] implicit-augment.py->main line:454 [INFO]0% (0/20)
+[2022-08-15 22:12:38,901] implicit-augment.py->main line:123 [INFO]Namespace(aug_model='SEP', data='./local_data', dataset='med', epochs=20, gpu='0', hyper_alpha=0.01, hyper_beta=0, hyper_est=True, hyper_gamma=0, hyper_iters=5, hyper_opt='HES', hyper_steps=0, imbalance_ratio=1, log_interval=500, los_model='NONE', lr_cosine=True, lr_decay_epochs='5,10,15', lr_decay_rate=0.1, lr_warm=True, lr_warm_epochs=5, no_cuda=False, noise_ratio=0.0, overfit=False, oversplit=False, plot_debug=False, run_folder='run2', scale=1, subsample_ratio=1.0, workers=4)
+[2022-08-15 22:12:44,485] implicit-augment.py->main line:337 [INFO]Valid/Train Split: 3/9
+[2022-08-15 22:12:44,488] implicit-augment.py->main line:403 [INFO]Test/Valid/Train Split: 12/3/9 out of total 12 train images
+[2022-08-15 22:12:44,491] implicit-augment.py->main line:446 [INFO]Run: ./local_data/med/run2/UNet_opt_HES_est_True_aug_model_SEP_los_model_NONE_ir_1_sr_1.0_nr_0.0
+[2022-08-15 22:12:44,492] implicit-augment.py->main line:454 [INFO]0% (0/20)
+[2022-08-15 22:13:33,875] implicit-augment.py->main line:123 [INFO]Namespace(aug_model='SEP', data='./local_data', dataset='med', epochs=20, gpu='0', hyper_alpha=0.01, hyper_beta=0, hyper_est=True, hyper_gamma=0, hyper_iters=5, hyper_opt='HES', hyper_steps=0, imbalance_ratio=1, log_interval=500, los_model='NONE', lr_cosine=True, lr_decay_epochs='5,10,15', lr_decay_rate=0.1, lr_warm=True, lr_warm_epochs=5, no_cuda=False, noise_ratio=0.0, overfit=False, oversplit=False, plot_debug=False, run_folder='run2', scale=1, subsample_ratio=1.0, workers=4)
+[2022-08-15 22:13:39,570] implicit-augment.py->main line:337 [INFO]Valid/Train Split: 3/9
+[2022-08-15 22:13:39,573] implicit-augment.py->main line:403 [INFO]Test/Valid/Train Split: 12/3/9 out of total 12 train images
+[2022-08-15 22:13:39,576] implicit-augment.py->main line:446 [INFO]Run: ./local_data/med/run2/UNet_opt_HES_est_True_aug_model_SEP_los_model_NONE_ir_1_sr_1.0_nr_0.0
+[2022-08-15 22:13:39,577] implicit-augment.py->main line:454 [INFO]0% (0/20)
+[2022-08-15 22:13:40,275] automodels.py->Med_hyperHesTrain line:912 [INFO]data point 0 weight: paramP_tensor([-2.3842, -2.3842, -2.5855, -2.3843, -2.4849, -2.4849, -2.4789, -2.4849,
+        -2.4849, -2.3911, -2.5856, -2.3846, -2.5845, -2.3871, -2.5856])
+[2022-08-15 22:13:40,276] automodels.py->Med_hyperHesTrain line:912 [INFO]data point 0 weight: paramM_tensor([0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.])
+[2022-08-15 22:13:40,849] automodels.py->Med_hyperHesTrain line:937 [INFO]hyperTrain epoch: 0, batch_idx: 0, global_img_step: 0, aug_ops:[('idenity', [1.0])]
+[2022-08-15 22:13:40,850] automodels.py->Med_hyperHesTrain line:943 [INFO]hyperTrain batch 0% (0/4), task_lr=0.000010, hyper_lr=-0.010074	gLtNorm 0.0003 (0.0003)	gLvNorm 0.0034 (0.0034)	mvpNorm 0.0016 (0.0016)
+
+[2022-08-15 22:16:26,765] implicit-augment.py->main line:123 [INFO]Namespace(aug_model='SEP', data='./local_data', dataset='med', epochs=20, gpu='0', hyper_alpha=0.01, hyper_beta=0, hyper_est=True, hyper_gamma=0, hyper_iters=5, hyper_opt='HES', hyper_steps=0, imbalance_ratio=1, log_interval=500, los_model='NONE', lr_cosine=True, lr_decay_epochs='5,10,15', lr_decay_rate=0.1, lr_warm=True, lr_warm_epochs=5, no_cuda=False, noise_ratio=0.0, overfit=False, oversplit=False, plot_debug=False, run_folder='run2', scale=1, subsample_ratio=1.0, workers=4)
+[2022-08-15 22:16:32,312] implicit-augment.py->main line:337 [INFO]Valid/Train Split: 3/9
+[2022-08-15 22:16:32,314] implicit-augment.py->main line:403 [INFO]Test/Valid/Train Split: 12/3/9 out of total 12 train images
+[2022-08-15 22:16:32,318] implicit-augment.py->main line:446 [INFO]Run: ./local_data/med/run2/UNet_opt_HES_est_True_aug_model_SEP_los_model_NONE_ir_1_sr_1.0_nr_0.0
+[2022-08-15 22:16:32,318] implicit-augment.py->main line:454 [INFO]0% (0/20)
+[2022-08-15 22:16:33,016] automodels.py->Med_hyperHesTrain line:912 [INFO]data point 0 weight: paramP_tensor([-2.5856, -2.3842, -2.5856, -2.5856, -2.4849, -2.4849, -2.3876, -2.4849,
+        -2.4849, -2.5837, -2.5856, -2.3842, -2.5847, -2.5847, -2.5856])
+[2022-08-15 22:16:33,016] automodels.py->Med_hyperHesTrain line:912 [INFO]data point 0 weight: paramM_tensor([0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.])
+[2022-08-15 22:16:33,615] automodels.py->Med_hyperHesTrain line:937 [INFO]hyperTrain epoch: 0, batch_idx: 0, global_img_step: 0, aug_ops:[('gaussian blur', tensor([0.8214]))]
+[2022-08-15 22:16:33,615] automodels.py->Med_hyperHesTrain line:943 [INFO]hyperTrain batch 0% (0/4), task_lr=0.000010, hyper_lr=-0.010074	gLtNorm 0.0058 (0.0058)	gLvNorm 0.0056 (0.0056)	mvpNorm 0.0228 (0.0228)
+
+[2022-08-15 22:50:00,560] implicit-augment.py->main line:123 [INFO]Namespace(aug_model='SEP', data='./local_data', dataset='med', epochs=20, gpu='0', hyper_alpha=0.01, hyper_beta=0, hyper_est=True, hyper_gamma=0, hyper_iters=5, hyper_opt='HES', hyper_steps=0, imbalance_ratio=1, log_interval=500, los_model='NONE', lr_cosine=True, lr_decay_epochs='5,10,15', lr_decay_rate=0.1, lr_warm=True, lr_warm_epochs=5, no_cuda=False, noise_ratio=0.0, overfit=False, oversplit=False, plot_debug=False, run_folder='run2', scale=1, subsample_ratio=1.0, workers=4)
+[2022-08-15 22:50:18,764] implicit-augment.py->main line:337 [INFO]Valid/Train Split: 3/9
+[2022-08-15 22:50:18,766] implicit-augment.py->main line:403 [INFO]Test/Valid/Train Split: 12/3/9 out of total 12 train images
+[2022-08-15 22:50:18,770] implicit-augment.py->main line:446 [INFO]Run: ./local_data/med/run2/UNet_opt_HES_est_True_aug_model_SEP_los_model_NONE_ir_1_sr_1.0_nr_0.0
+[2022-08-15 22:50:18,770] implicit-augment.py->main line:454 [INFO]0% (0/20)
+[2022-08-15 22:50:19,457] automodels.py->Med_hyperHesTrain line:935 [INFO]data point 0 weight: paramP_tensor([-2.4849, -2.4849, -2.4849, -2.4849, -2.4849, -2.4849, -2.4849, -2.4849,
+        -2.4849, -2.4849, -2.4849, -2.4849, -2.4849, -2.4849, -2.4849])
+[2022-08-15 22:50:19,458] automodels.py->Med_hyperHesTrain line:935 [INFO]data point 0 weight: paramM_tensor([0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.])
+[2022-08-15 22:50:28,875] automodels.py->Med_hyperHesTrain line:960 [INFO]hyperTrain epoch: 0, batch_idx: 0, global_img_step: 0, aug_ops:[('gaussian blur', tensor([-0.1259])), ('elastic transform', tensor([-0.0113])), ('TranslateY', tensor([0.7779]))]
+[2022-08-15 22:50:28,875] automodels.py->Med_hyperHesTrain line:966 [INFO]hyperTrain batch 0% (0/4), task_lr=0.000010, hyper_lr=-0.010074	gLtNorm 0.0000 (0.0000)	gLvNorm 0.0045 (0.0045)	mvpNorm 0.0039 (0.0039)
+

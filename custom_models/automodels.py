@@ -7,17 +7,64 @@ import kornia
 import math
 from utils import *
 from custom_models.utils import *
-from custom_transforms import plot_debug_images, aug_operator
+from custom_transforms import plot_debug_images, aug_operator, Aug_list, Aug_list_tensor
 from utils.dice_score import dice_loss, multiclass_dice_coeff, dice_coeff
 import random
 import albumentations as A
 from tqdm import tqdm
+import wandb
+from typing import Callable, Tuple, Union, List, Optional, Dict, cast
+from kornia.augmentation.base import AugmentationBase2D
+class RandomGaussianNoise(AugmentationBase2D):
+    r"""Add gaussian noise to a batch of multi-dimensional images.
+
+    Args:
+        mean (float): The mean of the gaussian distribution. Default: 0.
+        std (float): The standard deviation of the gaussian distribution. Default: 1.
+        return_transform (bool): if ``True`` return the matrix describing the transformation applied to each
+            input tensor. If ``False`` and the input is a tuple the applied transformation wont be concatenated.
+        same_on_batch (bool): apply the same transformation across the batch. Default: False.
+        p (float): probability of applying the transformation. Default value is 0.5.
+
+    Examples:
+        >>> rng = torch.manual_seed(0)
+        >>> img = torch.ones(1, 1, 2, 2)
+        >>> RandomGaussianNoise(mean=0., std=1., p=1.)(img)
+        tensor([[[[ 2.5410,  0.7066],
+                  [-1.1788,  1.5684]]]])
+    """
+
+    def __init__(self,
+                 mean: float = 0.,
+                 std: float = 1.,
+                 return_transform: bool = False,
+                 same_on_batch: bool = False,
+                 p: float = 0.5) -> None:
+        super(RandomGaussianNoise, self).__init__(
+            p=p, return_transform=return_transform, same_on_batch=same_on_batch, p_batch=1.)
+        self.mean = mean
+        self.std = std
+
+    def __repr__(self) -> str:
+        return self.__class__.__name__ + f"({super().__repr__()})"
+
+    def generate_parameters(self, shape: torch.Size) -> Dict[str, torch.Tensor]:
+        noise = torch.randn(shape)
+        return dict(noise=noise)
+
+    def compute_transformation(self, input: torch.Tensor, params: Dict[str, torch.Tensor]) -> torch.Tensor:
+        return self.identity_matrix(input)
+
+    def apply_transform(
+        self, input: torch.Tensor, params: Dict[str, torch.Tensor], transform: Optional[torch.Tensor] = None
+    ) -> torch.Tensor:
+        return input + params['noise'].to(input.device) * self.std + self.mean
 
 _SOFTPLUS_UNITY_ = 1.4427
 _SIGMOID_UNITY_ = 2.0
 _EPS_ = 1e-8 # small regularization constant
 
-__all__ = ['innerTest', 'innerTrain', 'classTrain', 'vizStat', 'Med_hyperHesTrain', 'Med_innerTrain', 'Med_innerTest',
+__all__ = ['innerTest', 'innerTrain', 'classTrain', 'vizStat', 'Med_hyperHesTrain', 'Med_innerTrain', 'Med_innerTest','Med_AugmentModel_2',
             'LossModel', 'AugmentModelNONE', 'AugmentModel', 'Med_AugmentModel', 'Med_LossModel', 'hyperHesTrain']
 
 
@@ -295,6 +342,246 @@ class AugmentModel(nn.Module):
             
             return x_warped
 
+class Med_AugmentModel_2(nn.Module):
+    def __init__(self, N, magn, apply, mode, grad, device):
+        """
+        N : totla image size
+        magn : magnitude
+        """
+        super(Med_AugmentModel_2, self).__init__()
+        # enable/disable manual augmentation
+        self.N = N
+        self.apply = apply
+        self.device = device
+        self.mode = mode # mode
+        self.K = 15 # number of ops
+        self.KM = 18 # number of m param
+        K = self.K
+        Km = self.KM
+        #預設機率與強度超參數的初始值
+        magnNorm = torch.ones(1)*magn/10.0 # normalize to 10 like in RandAugment
+        probNorm = torch.ones(1)*1/(K-2) # 1/(K-2) probability
+        magnLogit = torch.log(magnNorm/(1-magnNorm)) # convert to logit
+        probLogit = torch.log(probNorm/(1-probNorm)) # convert to logit
+        # affine transforms (mid, range)
+        self.angle = [0.0, 30.0] # [-30.0:30.0] rotation angle 0
+        self.trans = [0.0, 0.45] # [-0.45:0.45] X/Y translate 1, 2
+        self.shear = [0.0, 0.30] # [-0.30:0.30] X/Y shear 3, 4
+        self.sharpen = [1.0, 2.5, 2.5]
+        # gaussian
+        self.blur_kernel = [1, 2]
+        self.blur_sigma = [2.6,2.5] # [0.1:5.1]
+        self.noise = [0.25,0.25] # [0:10]
+        # elastic_transform
+        self.elt = [0.0, 5.0]
+        # color transforms (mid, range)
+        self.bri = [0.0, 1.0] # [-0.9:0.9] brightness
+        self.con = [1.0, 2.5, 2.5] # [0.1:1.9] contrast
+        self.sat = [1.0, 2.5, 2.5] # [-0.30:0.30] saturation
+        self.rgb_from_hed = torch.tensor([[0.65, 0.70, 0.29],
+                                        [0.07, 0.99, 0.11],
+                                        [0.27, 0.57, 0.78]], dtype=torch.float32).to(device)
+        self.hed_from_rgb = torch.inverse(self.rgb_from_hed).to(device)
+        # actP: 機率的激活函數，actM: 強度的激活函數
+        self.actP = nn.Sigmoid()
+        self.actM = nn.Sigmoid()
+        # 建立機率與強度的可學習超參數矩陣 shape = (擴增方法數量*資料數量)
+        self.paramP = nn.Parameter(probLogit*torch.ones(K,N), requires_grad=grad)
+        self.paramM = nn.Parameter(magnLogit*torch.ones(Km,N), requires_grad=grad)
+
+    def rgb_to_hed(self, rgb):
+        r: torch.Tensor = rgb[..., 0, :, :]
+        g: torch.Tensor = rgb[..., 1, :, :]
+        b: torch.Tensor = rgb[..., 2, :, :]
+        m = self.rgb_from_hed
+        h: torch.Tensor = m[0,0] * r + m[0,1] * g + m[0,2] * b
+        e: torch.Tensor = m[1,0] * r + m[1,1] * g + m[1,2] * b
+        d: torch.Tensor = m[2,0] * r + m[2,1] * g + m[2,2] * b
+
+        out: torch.Tensor = torch.stack([h, e, d], -3)
+
+        return out
+        # rgb = torch.permute(rgb, (0,2,3,1)) #B,C,H,W -> B,H,W,C
+        # rgb_aug  = rgb + torch.tensor(2)
+        # rgb_aug_log = torch.log(rgb_aug)
+        # stains = torch.matmul(torch.reshape(-rgb_aug_log, (-1, 3)), self.rgb_from_hed)
+        # return torch.reshape(stains, rgb.shape)
+
+    def hed_to_rgb(self, stains):
+        h: torch.Tensor = stains[..., 0, :, :]
+        e: torch.Tensor = stains[..., 1, :, :]
+        d: torch.Tensor = stains[..., 2, :, :]
+        m = self.hed_from_rgb
+        r: torch.Tensor = m[0,0] * h + m[0,1] * e + m[0,2] * d
+        g: torch.Tensor = m[1,0] * h + m[1,1] * e + m[1,2] * d
+        b: torch.Tensor = m[2,0] * h + m[2,1] * e + m[2,2] * d
+        
+        out: torch.Tensor = torch.stack([r, g, b], -3)
+
+        return out
+        # logrgb2 = torch.matmul(-torch.reshape(stains, (-1, 3)), self.hed_from_rgb)
+        # rgb2 = torch.exp(logrgb2)
+        # rgb2 = torch.reshape(rgb2 - 2, stains.size())
+        # if sum(rgb2.view(-1,1))>0: # non all-zero vector
+        #     # linear rescale to range [0, 1]
+        #     rgb2 -= rgb2.min() # bring the lower range to 0
+        #     rgb2 /= rgb2.max() # bring the upper range to 1
+        # return rgb2
+
+    def forward(self, idx, data):
+        x = data['image']
+        y = data['mask']
+        y = y.unsqueeze(1).float()
+        y_warped: torch.tensor = y
+        x_warped: torch.tensor = x
+        B,C,H,W = x.shape
+        device = self.device
+        if self.apply:
+            K = self.K
+            Km = self.KM
+            # learnable hyperparameters
+            if self.N == 1:
+                paramPos = torch.log(    self.actP(self.paramP)).repeat(1,B) # [-Inf:0]
+                paramNeg = torch.log(1.0-self.actP(self.paramP)).repeat(1,B) # [-Inf:0]
+                paramM = self.actM(self.paramM).repeat(1,B) # (K+J)xB [0:1], default=magn
+            else:
+                paramPos = torch.log(    self.actP(self.paramP[:,idx])) # [-Inf:0] [擴增方法數, data point number] 取針對該資料的使用機率之參數
+                paramNeg = torch.log(1.0-self.actP(self.paramP[:,idx])) # [-Inf:0] [擴增方法數, data point number] 取針對該資料的不使用機率之參數
+                paramM = self.actM(self.paramM[:,idx]) # (K+J)xB [0:1], default=magn
+            paramP = torch.cat([paramPos.view(-1,1), paramNeg.view(-1,1)], dim=1) # B*(K+J)x2
+            # reparametrize probabilities and magnitudes
+            sampleP = F.gumbel_softmax(paramP, tau=1.0, hard=True).to(device) # B*(K+J)x2 對K+種擴增方法的使用與不使用做採樣
+            sampleP = sampleP[:,0] #取使用那個col，1為使用
+            sampleP = sampleP.reshape(K,B) #reshape回batch
+            # sampleP = torch.ones(K,B)
+            # reparametrize magnitudes
+            # sampleM = paramM * torch.rand(Km,B).to(device) # KxB, prior: U[0,1]
+            # sampleM = sampleM*2-1.
+            sampleM = paramM * torch.randn(Km,B).to(device) # KxB, prior: N(0,1)
+            sampleM = torch.clamp(sampleM,-1.0,1.0)
+            ################# color augmentations #################
+            # equalize
+            x_warped_eq = kornia.enhance.equalize(x)
+            EQU = x-x_warped_eq
+            EQU = EQU.to(device)
+            for i in range(B):
+                EQU[i] = EQU[i].clone() * sampleP[14,i]
+            x_warped = x_warped - (EQU)
+            x_warped = torch.clamp(x_warped,min=0.0,max=1.0)
+            # contrast, brightness, saturation
+            BRI: torch.tensor = sampleP[0] * sampleM[0] 
+            CON: torch.tensor = self.con[0] + sampleP[1] * (self.con[1] + sampleM[1] * self.con[2]) # mid + B(0/1)*U[0,1]*M/10
+            SAT: torch.tensor = self.sat[0] + sampleP[2] * (self.sat[1] + sampleM[2] * self.sat[2])
+            for i in range(B):
+                x_warped[i] = kornia.enhance.adjust_saturation(x_warped[i].clone(), SAT[i])
+                x_warped[i] = torch.clamp(x_warped[i].clone(),min=0.0,max=1.0)
+                x_warped[i] = kornia.enhance.adjust_brightness(x_warped[i].clone(), BRI[i])
+                x_warped[i] = torch.clamp(x_warped[i].clone(),min=0.0,max=1.0)
+                x_warped[i] = kornia.enhance.adjust_contrast(x_warped[i].clone(), CON[i])
+                x_warped[i] = torch.clamp(x_warped[i].clone(),min=0.0,max=1.0)
+            # HSV
+            x_warped = kornia.color.rgb_to_hsv(x_warped)
+            for i in range(B):
+                # Augment the hue channel.
+                x_warped[i, 0, :, :] = x_warped[i, 0, :, :].clone() / (2.*math.pi)
+                x_warped[i, 0, :, :] = x_warped[i, 0, :, :].clone() + (sampleM[3,i] % 1.0) * sampleP[3,i]
+                x_warped[i, 0, :, :] = x_warped[i, 0, :, :].clone() % 1.0
+                x_warped[i, 0, :, :] = x_warped[i, 0, :, :].clone() * (2.*math.pi)
+                # Augment the Saturation channel.
+                if sampleM[4,i] < 0.0:
+                    x_warped[i, 1, :, :] = x_warped[i, 1, :, :].clone() * (1.0 + sampleM[4,i] * sampleP[3,i])
+                else:
+                    x_warped[i, 1, :, :] = x_warped[i, 1, :, :].clone() * (1.0 + (1.0 - x_warped[i, 1, :, :]) * sampleM[4,i] * sampleP[3,i])
+                # Augment the Brightness channel.
+                if sampleM[5,i] < 0.0:
+                    x_warped[i, 2, :, :] = x_warped[i, 2, :, :].clone() * (1.0 + sampleM[5,i] * sampleP[3,i])
+                else:
+                    x_warped[i, 2, :, :] = x_warped[i, 2, :, :].clone() + (1.0 - x_warped[i, 2, :, :]) * sampleM[5,i] * sampleP[3,i]
+            x_warped = kornia.color.hsv_to_rgb(x_warped)
+            x_warped = torch.clamp(x_warped,min=0.0,max=1.0)
+            # HED
+            x_warped = self.rgb_to_hed(x_warped,)
+            for i in range(B):
+                x_warped[i, 0, :, :] = x_warped[i, 0, :, :].clone() * (1.0 + sampleM[6,i] * sampleP[4,i])
+                x_warped[i, 0, :, :] = x_warped[i, 0, :, :].clone() + (torch.rand(1).to(device) * sampleM[6,i] * sampleP[4,i])
+                x_warped[i, 1, :, :] = x_warped[i, 1, :, :].clone() * (1.0 + sampleM[7,i] * sampleP[4,i])
+                x_warped[i, 1, :, :] = x_warped[i, 1, :, :].clone() + (torch.rand(1).to(device) * sampleM[7,i] * sampleP[4,i])
+                x_warped[i, 2, :, :] = x_warped[i, 2, :, :].clone() * (1.0 + sampleM[8,i] * sampleP[4,i])
+                x_warped[i, 2, :, :] = x_warped[i, 2, :, :].clone() + (torch.rand(1).to(device) * sampleM[8,i] * sampleP[4,i])
+            x_warped = self.hed_to_rgb(x_warped)
+            x_warped = torch.clamp(x_warped, min=0.0, max=1.0)
+            # x_warped = torch.permute(x_warped, (0,3,1,2))
+            # gaussian blur
+            BLUR_K: torch.tensor = self.blur_kernel[0] + sampleP[5] * self.blur_kernel[1]
+            BLUR_S: torch.tensor = self.blur_sigma[0] + sampleM[9] * self.blur_sigma[1]
+            for i in range(B):
+                x_warped[i] = kornia.filters.gaussian_blur2d(x_warped[i].clone().unsqueeze(0), (int(BLUR_K[i]), int(BLUR_K[i])), (BLUR_S[i], BLUR_S[i]))
+            x_warped = torch.clamp(x_warped,min=0.0,max=1.0)
+            # sharpen
+            SHARP: torch.tensor = self.sharpen[0] + sampleP[7] * (self.sharpen[1] + self.sharpen[2] * sampleM[11])
+            x_warped = kornia.enhance.sharpness(x_warped, SHARP)
+            x_warped = torch.clamp(x_warped,min=0.0,max=1.0)
+            # gaussian noise
+            NOISE: torch.tensor = sampleP[6] * (self.noise[0] + sampleM[10] * self.noise[1])
+            for i in range(B):
+                GN = RandomGaussianNoise(std=NOISE[i], p=1.)
+                x_warped[i] = torch.clamp(GN(x_warped[i].clone().unsqueeze(0)), min=0.0, max=1.0)
+            ################# affine augmentations #################
+            # elastic_transform
+            ELT: torch.tensor = self.elt[0] + sampleP[8] * sampleM[12] * self.elt[1]
+            for i in range(B):
+                elt_ops = kornia.augmentation.AugmentationSequential(
+                    kornia.augmentation.RandomElasticTransform(alpha=(ELT[i],ELT[i]),mode='nearest',p=1.),
+                    data_keys=['input', 'mask'],
+                )
+                x_warped[i], y_warped[i] = elt_ops(x_warped[i].clone(),y[i].clone())
+            x_warped = torch.clamp(x_warped,min=0.0,max=1.0)
+            # affine augmentations
+            R: torch.tensor = torch.zeros(B,3,3).to(device) + torch.eye(3).to(device) #3*3對角線為1
+            # define the rotation angle
+            ANG: torch.tensor = sampleP[9] * sampleM[13] * self.angle[1] # B(0/1)*U[0,1]*M/10
+            # define the rotation center
+            CTR: torch.tensor = torch.cat((W*torch.ones(B).to(device)//2, H*torch.ones(B).to(device)//2)).view(-1,2)
+            # define the scale factor
+            SCL: torch.tensor = torch.ones((B, 2)).to(device)
+            R[:,0:2] = kornia.geometry.transform.get_rotation_matrix2d(CTR, ANG, SCL)
+            # translation: border not defined yet
+            T: torch.tensor = torch.zeros_like(R) + torch.eye(3).to(device)
+            T[:,0,2] = W * sampleP[10] * sampleM[14] * self.trans[1]
+            T[:,1,2] = H * sampleP[11] * sampleM[15] * self.trans[1]
+            # shear: check this
+            S: torch.tensor = torch.zeros_like(R) + torch.eye(3).to(device)
+            S[:,0,1] = sampleP[12] * sampleM[16] * self.shear[1]
+            S[:,1,0] = sampleP[13] * sampleM[17] * self.shear[1]
+            # apply the transformation to original image
+            M: torch.tensor = torch.bmm(torch.bmm(S,T),R)
+            x_warped = kornia.geometry.transform.warp_perspective(x_warped, M, dsize=(H,W), mode='bilinear', padding_mode ='zeros')
+            x_warped = torch.clamp(x_warped,min=0.0,max=1.0)
+            y_warped = kornia.geometry.transform.warp_perspective(y_warped, M, dsize=(H,W), mode='nearest', padding_mode ='zeros')
+            y_warped = y_warped.squeeze(1)
+            aug_ops = []
+            for i in range(B):
+                batch_ops = []
+                for j in range(len(sampleP[:,i])):
+                    if sampleP[j,i]:
+                        name, m_idx = Aug_list_tensor()[j]
+                        batch_ops.append((name,sampleM[m_idx,i].view(-1).cpu().detach()))
+                if not batch_ops:
+                    batch_ops.append(('idenity',[1.]))
+                aug_ops.append(batch_ops)
+            return {
+                'image': x_warped.float().contiguous(),
+                'mask': y_warped.long().contiguous(),
+                'aug_ops': aug_ops
+            }
+
+        else: 
+            y_warped = y_warped.squeeze(1)
+            return {
+                'image': x_warped.float().contiguous(),
+                'mask': y_warped.long().contiguous()
+            }
+
 class Med_AugmentModel(nn.Module):
     def __init__(self, N, magn, apply, mode, grad, device):
         """
@@ -311,7 +598,7 @@ class Med_AugmentModel(nn.Module):
         K = self.aug_ops_num
         #預設機率與強度超參數的初始值
         magnNorm = torch.ones(1)*magn/10.0 # normalize to 10 like in RandAugment
-        probNorm = torch.zeros(1)*1/(K-2) # 1/(K-2) probability
+        probNorm = torch.ones(1)*1/(K-2) # 1/(K-2) probability
         magnLogit = torch.log(magnNorm/(1-magnNorm)) # convert to logit
         probLogit = torch.log(probNorm/(1-probNorm)) # convert to logit
         # actP: 機率的激活函數，actM: 強度的激活函數
@@ -347,13 +634,17 @@ class Med_AugmentModel(nn.Module):
             # sampleM = paramM[:K] * torch.randn(K,B).to(device) # KxB, prior: N(0,1)
             img = x['image'].cpu().detach().numpy()
             mask = x['mask'].cpu().detach().numpy()
+            aug_ops = []
             for i in range(B):
                 image_aug = img[i]
                 mask_aug = mask[i]
                 transform = A.Compose([])
+                used_ops = []
                 for p in range(K):
-                    if sampleP[p,i]:
+                    if sampleP[p,i] :
                         transform.transforms.insert(0, aug_operator(p,1,sampleM[p,i].item()))
+                        name, _, _ = Aug_list()[p]
+                        used_ops.append((name,sampleM[p,i].item()))
                 image_aug = image_aug.transpose(1,2,0)
                 image_aug = image_aug.astype(np.float32)
                 mask_aug = mask_aug.astype(np.float32)
@@ -363,9 +654,15 @@ class Med_AugmentModel(nn.Module):
                 image_aug = image_aug.transpose(2, 0, 1)
                 img[i] = image_aug
                 mask[i] = mask_aug
+                if not used_ops:
+                    used_ops.append(('idenity',1))
+                aug_ops.append(used_ops)
+            img = torch.as_tensor(img.copy()).float().contiguous()
+            mask = torch.as_tensor(mask.copy()).long().contiguous()
             return {
                 'image': torch.as_tensor(img.copy()).float().contiguous(),
-                'mask': torch.as_tensor(mask.copy()).long().contiguous()
+                'mask': torch.as_tensor(mask.copy()).long().contiguous(),
+                'aug_ops': aug_ops
             }
 
         else: # process val to compensate for Kornia artifacts!
@@ -506,7 +803,7 @@ def hyperHesTrain(args, Dnn_model, optimizer, device, valid_loader, train_loader
     return dDivs
 
 def Med_hyperHesTrain(args, Dnn_model, optimizer, device, valid_loader, train_loader, epoch, start,
-        trainLosModel, trainAugModel, validLosModel, validAugModel, hyperOptimizer, logger):
+        trainLosModel, trainAugModel, validLosModel, validAugModel, hyperOptimizer, logger, experiment, global_img_step):
     logger = logger
     Dnn_model.eval()
     # encoder.eval()
@@ -531,6 +828,8 @@ def Med_hyperHesTrain(args, Dnn_model, optimizer, device, valid_loader, train_lo
     for n,p in trainLosModel.named_parameters():
         if p.requires_grad:
             hyperParams.append(p)
+    if not hyperParams:
+        raise NotImplementedError('hyperParams is empty')
     theta = list()
     # for n,p in decoder.named_parameters():
     #     if (len(args.hyper_theta) == 0) or (any([e in n for e in args.hyper_theta]) and ('.weight' in n)):
@@ -584,18 +883,21 @@ def Med_hyperHesTrain(args, Dnn_model, optimizer, device, valid_loader, train_lo
         v1 = [e.detach().clone() for e in g1]
         # v0 = dL_t / dTheta: Lx1
         optimizer.zero_grad()
+        tData['image'] = tData['image'].to(device)
+        tData['mask'] = tData['mask'].to(device)
         tIndex = tData['idx']
         tData = trainAugModel(tIndex, tData)
 
         tImg = tData['image']
         tMask = tData['mask']
+        tOps = tData['aug_ops']
 
         tImg  = tImg.to(device)
-        tMask= tMask.to(device)
+        tMask = tMask.to(device)
         tIndex = tIndex.to(device)
 
         tOutput = Dnn_model(tImg)
-        tLoss, _ = trainLosModel(tIndex, tOutput, tMask)
+        tLoss, tDice = trainLosModel(tIndex, tOutput, tMask)
         g0 = torch.autograd.grad(tLoss, theta, create_graph=True)
         v0 = [e.detach().clone() for e in g0]
         # v2 = H^-1 * v0: Lx1
@@ -625,7 +927,37 @@ def Med_hyperHesTrain(args, Dnn_model, optimizer, device, valid_loader, train_lo
         batch_time.update(time.time() - end)
         end = time.time()
         # logger
-        if batch_idx % 200 == 0: #args.log_interval == 0:
+        if batch_idx % 1000 == 0: #args.log_interval == 0:
+            if batch_idx==0:
+                for tag, value in trainAugModel.named_parameters():
+                    tag = tag.replace('/', '.')
+                    value = value.data.cpu()[:,0]
+                    logger.info(f'data point 0 weight: {tag}_{value}')
+            histograms = {}
+            for tag, value in trainAugModel.named_parameters():
+                tag = tag.replace('/', '.')
+                histograms['Weights/' + tag] = wandb.Histogram(value.data.cpu())
+                # histograms['Gradients/' + tag] = wandb.Histogram(value.grad.data.cpu())
+            experiment.log({
+                            'task learning rate': task_lr,
+                            'hyper learning rate': hyper_lr,
+                            'validation Dice': tLoss.item(),
+                            'gLtNorm val': v0Norms.val,
+                            'gLvNorm val':v1Norms.val,
+                            'mvpNorm val':mvpNorms.val,
+                            'gLtNorm avg': v0Norms.avg,
+                            'gLvNorm avg':v1Norms.avg,
+                            'mvpNorm avg':mvpNorms.avg,
+                            'hyper batch idx': batch_idx,
+                            'images': wandb.Image(tImg[0].cpu()),
+                            'masks': {
+                                'true': wandb.Image(tMask[0].float().cpu()),
+                                'pred': wandb.Image(torch.softmax(tOutput, dim=1).argmax(dim=1)[0].float().cpu()),
+                            },
+                            'epoch': epoch,
+                            **histograms
+                        })
+            logger.info(f'hyperTrain epoch: {epoch}, batch_idx: {batch_idx}, global_img_step: {global_img_step}, aug_ops:{tOps[0]}')
             logger.info('hyperTrain batch {:.0f}% ({}/{}), task_lr={:.6f}, hyper_lr={:.6f}\t'
                 'gLtNorm {v0Norm.val:.4f} ({v0Norm.avg:.4f})\t'
                 'gLvNorm {v1Norm.val:.4f} ({v1Norm.avg:.4f})\t'
@@ -633,12 +965,13 @@ def Med_hyperHesTrain(args, Dnn_model, optimizer, device, valid_loader, train_lo
                 .format(100.0*batch_idx/B, batch_idx, B, task_lr, hyper_lr,
                 v0Norm=v0Norms, v1Norm=v1Norms, mvpNorm=mvpNorms,
                 ))
+            global_img_step += 1
     #
     dDivs = [e/B for e in dDivs]
     #logger.info('Epoch: {}\t Divergence: {:.4f}'.format(epoch, dDivs[-1]))
-    return dDivs
+    return dDivs, global_img_step
 
-def Med_innerTrain(args, Dnn_model, optimizer, scheduler, device, loader, epoch, losModel, augModel, logger):
+def Med_innerTrain(args, Dnn_model, optimizer, scheduler, device, loader, epoch, losModel, augModel, logger, experiment, global_img_step, hyperEnable):
     logger = logger
     Dnn_model.train()
     losModel.eval() # use fixed hyperModel parameters
@@ -661,11 +994,16 @@ def Med_innerTrain(args, Dnn_model, optimizer, scheduler, device, loader, epoch,
         # warm-up learning rate
         # model+loss
         index = data['idx'].to(device)
-        aug_data = augModel(index, data)
-        aug_image = aug_data['image'].to(device)
-        aug_mask = aug_data['mask'].to(device)
-        output = Dnn_model(aug_image)
-        loss, dice = losModel(index, output, aug_mask)
+        if hyperEnable:
+            aug_data = augModel(index, data)
+            img = aug_data['image'].to(device)
+            t_mask = aug_data['mask'].to(device)
+            aug_ops = aug_data['aug_ops']
+        else:
+            img = data['image'].to(device)
+            t_mask = data['mask'].to(device)
+        output = Dnn_model(img)
+        loss, dice = losModel(index, output, t_mask)
         score += 1-dice.item()
         losses.update(loss.item())
         train_loss += loss.item()
@@ -681,7 +1019,24 @@ def Med_innerTrain(args, Dnn_model, optimizer, scheduler, device, loader, epoch,
             fname = 'ori_train_batch_{}_{}.png'.format(batch_idx, args.dataset)
             plot_debug_images(args, rows=2, cols=2, imgs=data['image'], fname=fname)
             fname = 'aug_train_batch_{}_{}.png'.format(batch_idx, args.dataset)
-            plot_debug_images(args, rows=2, cols=2, imgs=aug_image, fname=fname)
+            plot_debug_images(args, rows=2, cols=2, imgs=img, fname=fname)
+        if batch_idx % 500 == 0:
+            experiment.log({
+                            'train Dice score': score/(batch_idx+1),
+                            'train loss': train_loss/(batch_idx+1),
+                            'train batch idx': batch_idx,
+                            'train images': wandb.Image(img[0].cpu()),
+                            'train masks': {
+                                'true': wandb.Image(t_mask[0].float().cpu()),
+                                'pred': wandb.Image(torch.softmax(output, dim=1).argmax(dim=1)[0].float().cpu()),
+                            },
+                            'epoch': epoch
+                        })
+            if hyperEnable:
+                logger.info(f'Train epoch: {epoch}, batch_idx: {batch_idx}, global_img_step: {global_img_step}, aug_ops:{aug_ops[0]}')
+            else:
+                logger.info(f'Train epoch: {epoch}, batch_idx: {batch_idx}, global_img_step: {global_img_step}')
+            global_img_step += 1
         # logger
         # if batch_idx % args.log_interval == 0:
         #     logger.info('innerTrain batch {:.0f}% ({}/{}), lr={:.6f}\t'
@@ -691,7 +1046,7 @@ def Med_innerTrain(args, Dnn_model, optimizer, scheduler, device, loader, epoch,
     scheduler.step(score)
     train_loss /= B
     logger.info('Epoch: {}\t Inner Train loss: {:.4f}, acc={:.4f}, lr={:.6f}\t'.format(epoch, train_loss, score, optimizer.param_groups[0]['lr'],loss=losses))
-    return train_loss, score
+    return train_loss, score, global_img_step
 
 def innerTrain(args, Dnn_model, optimizer, device, loader, epoch, losModel, augModel, logger):
     logger = logger

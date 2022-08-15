@@ -4,6 +4,7 @@ from scipy import linalg
 from skimage.util import dtype, dtype_limits
 from skimage.exposure import rescale_intensity
 import time
+import torch
 
 rgb_from_hed = np.array([[0.65, 0.70, 0.29],
                          [0.07, 0.99, 0.11],
@@ -28,10 +29,14 @@ def separate_stains(rgb, conv_matrix):
     stains = np.dot(np.reshape(-np.log(rgb), (-1, 3)), conv_matrix)
     return np.reshape(stains, rgb.shape)
 
+def separate_stains_tensor(rgb, conv_matrix):
+    conv_matrix = torch.from_numpy(conv_matrix)
+    # rgb = dtype.img_as_float(rgb, force_copy=True).astype('float32')
+    # rgb += 2
+    stains = torch.dot(torch.reshape(-torch.log(rgb), (-1, 3)), conv_matrix)
+    return torch.reshape(stains, rgb.shape)
 
 def combine_stains(stains, conv_matrix):
-
-
 
     stains = dtype.img_as_float(stains.astype('float64')).astype('float32')  # stains are out of range [-1, 1] so dtype.img_as_float complains if not float64
     logrgb2 = np.dot(-np.reshape(stains, (-1, 3)), conv_matrix)
