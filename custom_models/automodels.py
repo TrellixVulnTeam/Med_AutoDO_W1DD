@@ -393,7 +393,7 @@ class Med_AugmentModel_2(nn.Module):
         r: torch.Tensor = rgb[..., 0, :, :]
         g: torch.Tensor = rgb[..., 1, :, :]
         b: torch.Tensor = rgb[..., 2, :, :]
-        m = self.rgb_from_hed
+        m = self.hed_from_rgb
         h: torch.Tensor = m[0,0] * r + m[0,1] * g + m[0,2] * b
         e: torch.Tensor = m[1,0] * r + m[1,1] * g + m[1,2] * b
         d: torch.Tensor = m[2,0] * r + m[2,1] * g + m[2,2] * b
@@ -411,7 +411,7 @@ class Med_AugmentModel_2(nn.Module):
         h: torch.Tensor = stains[..., 0, :, :]
         e: torch.Tensor = stains[..., 1, :, :]
         d: torch.Tensor = stains[..., 2, :, :]
-        m = self.hed_from_rgb
+        m = self.rgb_from_hed
         r: torch.Tensor = m[0,0] * h + m[0,1] * e + m[0,2] * d
         g: torch.Tensor = m[1,0] * h + m[1,1] * e + m[1,2] * d
         b: torch.Tensor = m[2,0] * h + m[2,1] * e + m[2,2] * d
@@ -453,7 +453,7 @@ class Med_AugmentModel_2(nn.Module):
             sampleP = F.gumbel_softmax(paramP, tau=1.0, hard=True).to(device) # B*(K+J)x2 對K+種擴增方法的使用與不使用做採樣
             sampleP = sampleP[:,0] #取使用那個col，1為使用
             sampleP = sampleP.reshape(K,B) #reshape回batch
-            # sampleP = torch.ones(K,B)
+            # sampleP = torch.ones(K,B).to(device)
             # reparametrize magnitudes
             # sampleM = paramM * torch.rand(Km,B).to(device) # KxB, prior: U[0,1]
             # sampleM = sampleM*2-1.
@@ -463,7 +463,6 @@ class Med_AugmentModel_2(nn.Module):
             # equalize
             x_warped_eq = kornia.enhance.equalize(x)
             EQU = x-x_warped_eq
-            EQU = EQU.to(device)
             for i in range(B):
                 EQU[i] = EQU[i].clone() * sampleP[14,i]
             x_warped = x_warped - (EQU)
@@ -510,7 +509,6 @@ class Med_AugmentModel_2(nn.Module):
                 x_warped[i, 2, :, :] = x_warped[i, 2, :, :].clone() + (torch.rand(1).to(device) * sampleM[8,i] * sampleP[4,i])
             x_warped = self.hed_to_rgb(x_warped)
             x_warped = torch.clamp(x_warped, min=0.0, max=1.0)
-            # x_warped = torch.permute(x_warped, (0,3,1,2))
             # gaussian blur
             BLUR_K: torch.tensor = self.blur_kernel[0] + sampleP[5] * self.blur_kernel[1]
             BLUR_S: torch.tensor = self.blur_sigma[0] + sampleM[9] * self.blur_sigma[1]
@@ -819,8 +817,7 @@ def Med_hyperHesTrain(args, Dnn_model, optimizer, device, valid_loader, train_lo
     t_loader_iterator = iter(train_loader)
     dDivs = 4*[0.0]
     #
-    for param_group in optimizer.param_groups:
-        task_lr = param_group['lr']
+    task_lr = optimizer.param_groups[0]['lr']
     hyperParams = list()
     for n,p in trainAugModel.named_parameters():
         if p.requires_grad:
@@ -927,7 +924,7 @@ def Med_hyperHesTrain(args, Dnn_model, optimizer, device, valid_loader, train_lo
         batch_time.update(time.time() - end)
         end = time.time()
         # logger
-        if batch_idx % 1000 == 0: #args.log_interval == 0:
+        if batch_idx % 2500 == 0: #args.log_interval == 0:
             if batch_idx==0:
                 for tag, value in trainAugModel.named_parameters():
                     tag = tag.replace('/', '.')
@@ -995,6 +992,8 @@ def Med_innerTrain(args, Dnn_model, optimizer, scheduler, device, loader, epoch,
         # model+loss
         index = data['idx'].to(device)
         if hyperEnable:
+            data['image'] = data['image'].to(device)
+            data['mask'] = data['mask'].to(device)
             aug_data = augModel(index, data)
             img = aug_data['image'].to(device)
             t_mask = aug_data['mask'].to(device)
@@ -1020,7 +1019,7 @@ def Med_innerTrain(args, Dnn_model, optimizer, scheduler, device, loader, epoch,
             plot_debug_images(args, rows=2, cols=2, imgs=data['image'], fname=fname)
             fname = 'aug_train_batch_{}_{}.png'.format(batch_idx, args.dataset)
             plot_debug_images(args, rows=2, cols=2, imgs=img, fname=fname)
-        if batch_idx % 500 == 0:
+        if batch_idx % 1000 == 0:
             experiment.log({
                             'train Dice score': score/(batch_idx+1),
                             'train loss': train_loss/(batch_idx+1),

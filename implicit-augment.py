@@ -19,8 +19,9 @@ import logging
 import matplotlib.pyplot as plt
 import wandb
 
+# conda activate autodo
 # python implicit-augment.py -r run1 --gpu 0 -nr 0.0 -ir 1 --dataset med --epochs 20
-# python implicit-augment.py -r run1 --gpu 0 -nr 0.0 -ir 1 --dataset med --epochs 20 --aug-model SEP --los-model NONE --hyper-opt HES
+# python implicit-augment.py -r run1 --gpu 0 -nr 0.0 -ir 1 --dataset med --epochs 200 --aug-model SEP --los-model NONE --hyper-opt HES
 # python implicit-augment.py -r run0 --gpu 1 -nr 0.0 -ir 1 --dataset med --epochs 20 --aug-model SEP --los-model NONE --hyper-opt HES
 # python implicit-augment.py -r run2 --gpu 0 -nr 0.0 -ir 1 --dataset med --epochs 20 --aug-model SEP --los-model NONE --hyper-opt HES
 
@@ -118,11 +119,11 @@ def main(args):
     model_postfix = 'ir_{}_sr_{}_nr_{}'.format(imbalance_ratio, subsample_ratio, noise_ratio)
     run_folder = args.run_folder
     #設定log
-    log_file = f"./Log/autodo_{dataset}_{run_folder}_{model_postfix}_{args.aug_model}_{args.los_model}_{hyper_opt}.log"
+    log_file = f"./Log/autodo_e{args.epochs}_{dataset}_{run_folder}_{model_postfix}_{args.aug_model}_{args.los_model}_{hyper_opt}.log"
     logger = Log(__name__, log_file).getlog()
     logger.info(args)
     if hyper_est and hyper_opt=='HES':
-        experiment_name = f'autodo_{dataset}_{run_folder}_{model_postfix}_{args.aug_model}_{args.los_model}_{hyper_opt}'
+        experiment_name = f'autodo_e{args.epochs}_{dataset}_{run_folder}_{model_postfix}_{args.aug_model}_{args.los_model}_{hyper_opt}'
         print(experiment_name)
         experiment = wandb.init(project='autodo', resume='allow', anonymous='must', name=experiment_name)
         experiment.config.update(dict(epochs=args.epochs, batch_size=4, learning_rate=0.00001,run_folder=run_folder,
@@ -180,7 +181,7 @@ def main(args):
             valid_images = 0.2
         num_classes = 2
         num_channels = 3
-        hyperEpochStart = 2
+        hyperEpochStart = 5
         # WideResNet model:
         task_lr = 0.00001
         train_batch_size = 4 #32
@@ -428,8 +429,8 @@ def main(args):
         model_name = 'overfit_' + model_name
     if oversplit:
         model_name = 'oversplit_' + model_name
-    run_name = '{}_opt_{}_est_{}_aug_model_{}_los_model_{}_{}'.format(
-        model_name, hyper_opt, hyper_est, args.aug_model, args.los_model, model_postfix)
+    run_name = '{}_e{}_opt_{}_est_{}_aug_model_{}_los_model_{}_{}'.format(
+        model_name, args.epochs, hyper_opt, hyper_est, args.aug_model, args.los_model, model_postfix)
     # writer = SummaryWriter('./logs/{}/{}_{}_{}'.format(dataset, run_folder, run_name, run_date))
     checkpoint_file = '{}/best_{}.pt'.format(model_folder, run_name)
     # load hypermodel with estimated hyperparameters
@@ -452,9 +453,9 @@ def main(args):
     global_img_step = 0
     for epoch in range(0, args.epochs):
         logger.info('{:.0f}% ({}/{})'.format(100.0*epoch/args.epochs, epoch, args.epochs))
-        adjust_learning_rate(args, optimizer, epoch)
-        testEnable  = False#True #if  (epoch >= hyperEpochStart) else False
-        hyperEnable = True #if ((epoch >  hyperEpochStart) and hyperGradEnable)  else False
+        # adjust_learning_rate(args, optimizer, epoch)
+        testEnable  = True #if  (epoch >= hyperEpochStart) else False
+        hyperEnable = True if ((epoch >  hyperEpochStart) and hyperGradEnable)  else False
         if not(hyper_est): # train classifier only
             pass
             # train_loss = classTrain(args, encoder, decoder, optimizer, device, train_loader, epoch, trainLosModel, trainAugModel, logger)

@@ -1,0 +1,58 @@
+[2022-08-16 19:43:35,265] implicit-augment.py->main line:124 [INFO]Namespace(aug_model='SEP', data='./local_data', dataset='med', epochs=200, gpu='0', hyper_alpha=0.01, hyper_beta=0, hyper_est=True, hyper_gamma=0, hyper_iters=5, hyper_opt='HES', hyper_steps=0, imbalance_ratio=1, log_interval=500, los_model='NONE', lr_cosine=True, lr_decay_epochs='5,10,15', lr_decay_rate=0.1, lr_warm=True, lr_warm_epochs=5, no_cuda=False, noise_ratio=0.0, overfit=False, oversplit=False, plot_debug=False, run_folder='run1', scale=1, subsample_ratio=1.0, workers=4)
+[2022-08-16 19:43:41,027] implicit-augment.py->main line:338 [INFO]Valid/Train Split: 2563/10248
+[2022-08-16 19:43:41,029] implicit-augment.py->main line:404 [INFO]Test/Valid/Train Split: 1423/2563/10248 out of total 14234 train images
+[2022-08-16 19:43:41,034] implicit-augment.py->main line:447 [INFO]Run: ./local_data/med/run1/UNet_e200_opt_HES_est_True_aug_model_SEP_los_model_NONE_ir_1_sr_1.0_nr_0.0
+[2022-08-16 19:43:41,034] implicit-augment.py->main line:455 [INFO]0% (0/200)
+[2022-08-16 19:43:42,447] automodels.py->Med_innerTrain line:1037 [INFO]Train epoch: 0, batch_idx: 0, global_img_step: 0
+[2022-08-16 19:50:08,632] automodels.py->Med_innerTrain line:1037 [INFO]Train epoch: 0, batch_idx: 1000, global_img_step: 1
+[2022-08-16 19:56:47,221] automodels.py->Med_innerTrain line:1037 [INFO]Train epoch: 0, batch_idx: 2000, global_img_step: 2
+[2022-08-16 20:00:31,089] automodels.py->Med_innerTrain line:1047 [INFO]Epoch: 0	 Inner Train loss: 0.8159, acc=0.6920, lr=0.000010	
+[2022-08-16 20:01:18,506] automodels.py->Med_innerTest line:1209 [INFO]Epoch: 0	 Test loss: 0.7544, score: 0.7006
+[2022-08-16 20:01:18,507] implicit-augment.py->main line:477 [INFO]SAVING trained model at epoch 0 with 0.7006 Dice score
+[2022-08-16 20:01:19,133] implicit-augment.py->main line:455 [INFO]0% (1/200)
+[2022-08-16 20:01:19,870] automodels.py->Med_innerTrain line:1037 [INFO]Train epoch: 1, batch_idx: 0, global_img_step: 3
+[2022-08-16 20:07:56,891] automodels.py->Med_innerTrain line:1037 [INFO]Train epoch: 1, batch_idx: 1000, global_img_step: 4
+[2022-08-16 20:14:33,799] automodels.py->Med_innerTrain line:1037 [INFO]Train epoch: 1, batch_idx: 2000, global_img_step: 5
+[2022-08-16 20:18:16,586] automodels.py->Med_innerTrain line:1047 [INFO]Epoch: 1	 Inner Train loss: 0.7365, acc=0.7261, lr=0.000010	
+[2022-08-16 20:19:03,984] automodels.py->Med_innerTest line:1209 [INFO]Epoch: 1	 Test loss: 0.6699, score: 0.7470
+[2022-08-16 20:19:03,984] implicit-augment.py->main line:477 [INFO]SAVING trained model at epoch 1 with 0.7470 Dice score
+[2022-08-16 20:19:04,622] implicit-augment.py->main line:455 [INFO]1% (2/200)
+[2022-08-16 20:19:05,338] automodels.py->Med_innerTrain line:1037 [INFO]Train epoch: 2, batch_idx: 0, global_img_step: 6
+[2022-08-16 20:25:44,844] automodels.py->Med_innerTrain line:1037 [INFO]Train epoch: 2, batch_idx: 1000, global_img_step: 7
+[2022-08-16 20:32:25,510] automodels.py->Med_innerTrain line:1037 [INFO]Train epoch: 2, batch_idx: 2000, global_img_step: 8
+[2022-08-16 20:36:11,874] automodels.py->Med_innerTrain line:1047 [INFO]Epoch: 2	 Inner Train loss: 0.6978, acc=0.7412, lr=0.000010	
+[2022-08-16 20:36:59,780] automodels.py->Med_innerTest line:1209 [INFO]Epoch: 2	 Test loss: 0.6986, score: 0.7430
+[2022-08-16 20:36:59,781] implicit-augment.py->main line:455 [INFO]2% (3/200)
+[2022-08-16 20:37:00,479] automodels.py->Med_innerTrain line:1037 [INFO]Train epoch: 3, batch_idx: 0, global_img_step: 9
+[2022-08-16 20:43:43,504] automodels.py->Med_innerTrain line:1037 [INFO]Train epoch: 3, batch_idx: 1000, global_img_step: 10
+[2022-08-16 20:50:27,855] automodels.py->Med_innerTrain line:1037 [INFO]Train epoch: 3, batch_idx: 2000, global_img_step: 11
+[2022-08-16 20:54:15,949] automodels.py->Med_innerTrain line:1047 [INFO]Epoch: 3	 Inner Train loss: 0.6803, acc=0.7483, lr=0.000010	
+[2022-08-16 20:55:04,441] automodels.py->Med_innerTest line:1209 [INFO]Epoch: 3	 Test loss: 0.6462, score: 0.7620
+[2022-08-16 20:55:04,441] implicit-augment.py->main line:477 [INFO]SAVING trained model at epoch 3 with 0.7620 Dice score
+[2022-08-16 20:55:05,081] implicit-augment.py->main line:455 [INFO]2% (4/200)
+[2022-08-16 20:55:05,861] automodels.py->Med_innerTrain line:1037 [INFO]Train epoch: 4, batch_idx: 0, global_img_step: 12
+[2022-08-16 21:01:49,219] automodels.py->Med_innerTrain line:1037 [INFO]Train epoch: 4, batch_idx: 1000, global_img_step: 13
+[2022-08-16 21:08:30,721] automodels.py->Med_innerTrain line:1037 [INFO]Train epoch: 4, batch_idx: 2000, global_img_step: 14
+[2022-08-16 21:12:14,678] automodels.py->Med_innerTrain line:1047 [INFO]Epoch: 4	 Inner Train loss: 0.6630, acc=0.7562, lr=0.000010	
+[2022-08-16 21:13:01,970] automodels.py->Med_innerTest line:1209 [INFO]Epoch: 4	 Test loss: 0.6638, score: 0.7459
+[2022-08-16 21:13:01,971] implicit-augment.py->main line:455 [INFO]2% (5/200)
+[2022-08-16 21:13:02,692] automodels.py->Med_innerTrain line:1037 [INFO]Train epoch: 5, batch_idx: 0, global_img_step: 15
+[2022-08-16 21:19:40,335] automodels.py->Med_innerTrain line:1037 [INFO]Train epoch: 5, batch_idx: 1000, global_img_step: 16
+[2022-08-16 21:26:20,574] automodels.py->Med_innerTrain line:1037 [INFO]Train epoch: 5, batch_idx: 2000, global_img_step: 17
+[2022-08-16 21:30:05,529] automodels.py->Med_innerTrain line:1047 [INFO]Epoch: 5	 Inner Train loss: 0.6565, acc=0.7578, lr=0.000010	
+[2022-08-16 21:30:53,278] automodels.py->Med_innerTest line:1209 [INFO]Epoch: 5	 Test loss: 0.6893, score: 0.7333
+[2022-08-16 21:30:53,278] implicit-augment.py->main line:455 [INFO]3% (6/200)
+[2022-08-16 21:30:54,025] automodels.py->Med_hyperHesTrain line:932 [INFO]data point 0 weight: paramP_tensor([-2.4849, -2.4849, -2.4849, -2.4849, -2.4849, -2.4849, -2.4849, -2.4849,
+        -2.4849, -2.4849, -2.4849, -2.4849, -2.4849, -2.4849, -2.4849])
+[2022-08-16 21:30:54,027] automodels.py->Med_hyperHesTrain line:932 [INFO]data point 0 weight: paramM_tensor([0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.])
+[2022-08-16 21:30:54,180] automodels.py->Med_hyperHesTrain line:957 [INFO]hyperTrain epoch: 6, batch_idx: 0, global_img_step: 18, aug_ops:[('gaussian noise', tensor([0.4402]))]
+[2022-08-16 21:30:54,181] automodels.py->Med_hyperHesTrain line:963 [INFO]hyperTrain batch 0% (0/5124), task_lr=0.000010, hyper_lr=0.013985	gLtNorm 0.0884 (0.0884)	gLvNorm 0.1232 (0.1232)	mvpNorm 0.0134 (0.0134)
+
+[2022-08-16 21:48:50,502] automodels.py->Med_hyperHesTrain line:957 [INFO]hyperTrain epoch: 6, batch_idx: 2500, global_img_step: 19, aug_ops:[('ShearY', tensor([0.2227]))]
+[2022-08-16 21:48:50,503] automodels.py->Med_hyperHesTrain line:963 [INFO]hyperTrain batch 49% (2500/5124), task_lr=0.000010, hyper_lr=0.018368	gLtNorm 14.4984 (60.4116)	gLvNorm 0.0648 (0.3583)	mvpNorm 15.3482 (61.2322)
+
+[2022-08-16 22:06:53,559] automodels.py->Med_hyperHesTrain line:957 [INFO]hyperTrain epoch: 6, batch_idx: 5000, global_img_step: 20, aug_ops:[('idenity', [1.0])]
+[2022-08-16 22:06:53,560] automodels.py->Med_hyperHesTrain line:963 [INFO]hyperTrain batch 98% (5000/5124), task_lr=0.000010, hyper_lr=0.022752	gLtNorm 0.8396 (59.7949)	gLvNorm 0.1467 (0.3531)	mvpNorm 0.5298 (60.4591)
+
+[2022-08-16 22:07:47,280] automodels.py->Med_innerTrain line:1035 [INFO]Train epoch: 6, batch_idx: 0, global_img_step: 21, aug_ops:[('elastic transform', tensor([0.1631]))]
+[2022-08-16 22:18:54,710] automodels.py->Med_innerTrain line:1035 [INFO]Train epoch: 6, batch_idx: 1000, global_img_step: 22, aug_ops:[('idenity', [1.0])]

@@ -1,0 +1,510 @@
+[2022-08-16 00:02:47,028] implicit-augment.py->main line:124 [INFO]Namespace(aug_model='SEP', data='./local_data', dataset='med', epochs=20, gpu='0', hyper_alpha=0.01, hyper_beta=0, hyper_est=True, hyper_gamma=0, hyper_iters=5, hyper_opt='HES', hyper_steps=0, imbalance_ratio=1, log_interval=500, los_model='NONE', lr_cosine=True, lr_decay_epochs='5,10,15', lr_decay_rate=0.1, lr_warm=True, lr_warm_epochs=5, no_cuda=False, noise_ratio=0.0, overfit=False, oversplit=False, plot_debug=False, run_folder='run1', scale=1, subsample_ratio=1.0, workers=4)
+[2022-08-16 00:02:52,807] implicit-augment.py->main line:338 [INFO]Valid/Train Split: 2563/10248
+[2022-08-16 00:02:52,809] implicit-augment.py->main line:404 [INFO]Test/Valid/Train Split: 1423/2563/10248 out of total 14234 train images
+[2022-08-16 00:02:52,814] implicit-augment.py->main line:447 [INFO]Run: ./local_data/med/run1/UNet_opt_HES_est_True_aug_model_SEP_los_model_NONE_ir_1_sr_1.0_nr_0.0
+[2022-08-16 00:02:52,815] implicit-augment.py->main line:455 [INFO]0% (0/20)
+[2022-08-16 00:02:54,051] automodels.py->Med_innerTrain line:1038 [INFO]Train epoch: 0, batch_idx: 0, global_img_step: 0
+[2022-08-16 00:05:56,797] automodels.py->Med_innerTrain line:1038 [INFO]Train epoch: 0, batch_idx: 500, global_img_step: 1
+[2022-08-16 00:09:06,756] automodels.py->Med_innerTrain line:1038 [INFO]Train epoch: 0, batch_idx: 1000, global_img_step: 2
+[2022-08-16 00:12:20,008] automodels.py->Med_innerTrain line:1038 [INFO]Train epoch: 0, batch_idx: 1500, global_img_step: 3
+[2022-08-16 00:15:35,559] automodels.py->Med_innerTrain line:1038 [INFO]Train epoch: 0, batch_idx: 2000, global_img_step: 4
+[2022-08-16 00:18:51,744] automodels.py->Med_innerTrain line:1038 [INFO]Train epoch: 0, batch_idx: 2500, global_img_step: 5
+[2022-08-16 00:19:15,474] automodels.py->Med_innerTrain line:1048 [INFO]Epoch: 0	 Inner Train loss: 0.8103, acc=0.6948, lr=0.000010	
+[2022-08-16 00:20:02,435] automodels.py->Med_innerTest line:1210 [INFO]Epoch: 0	 Test loss: 0.6865, score: 0.7286
+[2022-08-16 00:20:02,435] implicit-augment.py->main line:477 [INFO]SAVING trained model at epoch 0 with 0.7286 Dice score
+[2022-08-16 00:20:03,075] implicit-augment.py->main line:455 [INFO]5% (1/20)
+[2022-08-16 00:20:03,771] automodels.py->Med_innerTrain line:1038 [INFO]Train epoch: 1, batch_idx: 0, global_img_step: 6
+[2022-08-16 00:23:22,125] automodels.py->Med_innerTrain line:1038 [INFO]Train epoch: 1, batch_idx: 500, global_img_step: 7
+[2022-08-16 00:26:41,707] automodels.py->Med_innerTrain line:1038 [INFO]Train epoch: 1, batch_idx: 1000, global_img_step: 8
+[2022-08-16 00:30:01,373] automodels.py->Med_innerTrain line:1038 [INFO]Train epoch: 1, batch_idx: 1500, global_img_step: 9
+[2022-08-16 00:33:20,814] automodels.py->Med_innerTrain line:1038 [INFO]Train epoch: 1, batch_idx: 2000, global_img_step: 10
+[2022-08-16 00:36:40,236] automodels.py->Med_innerTrain line:1038 [INFO]Train epoch: 1, batch_idx: 2500, global_img_step: 11
+[2022-08-16 00:37:04,426] automodels.py->Med_innerTrain line:1048 [INFO]Epoch: 1	 Inner Train loss: 0.7313, acc=0.7279, lr=0.000010	
+[2022-08-16 00:37:52,678] automodels.py->Med_innerTest line:1210 [INFO]Epoch: 1	 Test loss: 0.7165, score: 0.7363
+[2022-08-16 00:37:52,679] implicit-augment.py->main line:477 [INFO]SAVING trained model at epoch 1 with 0.7363 Dice score
+[2022-08-16 00:37:53,308] implicit-augment.py->main line:455 [INFO]10% (2/20)
+[2022-08-16 00:37:54,028] automodels.py->Med_innerTrain line:1038 [INFO]Train epoch: 2, batch_idx: 0, global_img_step: 12
+[2022-08-16 00:41:15,433] automodels.py->Med_innerTrain line:1038 [INFO]Train epoch: 2, batch_idx: 500, global_img_step: 13
+[2022-08-16 00:44:35,850] automodels.py->Med_innerTrain line:1038 [INFO]Train epoch: 2, batch_idx: 1000, global_img_step: 14
+[2022-08-16 00:47:55,109] automodels.py->Med_innerTrain line:1038 [INFO]Train epoch: 2, batch_idx: 1500, global_img_step: 15
+[2022-08-16 00:51:14,036] automodels.py->Med_innerTrain line:1038 [INFO]Train epoch: 2, batch_idx: 2000, global_img_step: 16
+[2022-08-16 00:54:32,999] automodels.py->Med_innerTrain line:1038 [INFO]Train epoch: 2, batch_idx: 2500, global_img_step: 17
+[2022-08-16 00:54:56,940] automodels.py->Med_innerTrain line:1048 [INFO]Epoch: 2	 Inner Train loss: 0.6968, acc=0.7422, lr=0.000010	
+[2022-08-16 00:55:44,135] automodels.py->Med_innerTest line:1210 [INFO]Epoch: 2	 Test loss: 0.6818, score: 0.7327
+[2022-08-16 00:55:44,136] implicit-augment.py->main line:455 [INFO]15% (3/20)
+[2022-08-16 00:55:44,841] automodels.py->Med_innerTrain line:1038 [INFO]Train epoch: 3, batch_idx: 0, global_img_step: 18
+[2022-08-16 00:59:02,305] automodels.py->Med_innerTrain line:1038 [INFO]Train epoch: 3, batch_idx: 500, global_img_step: 19
+[2022-08-16 01:02:19,438] automodels.py->Med_innerTrain line:1038 [INFO]Train epoch: 3, batch_idx: 1000, global_img_step: 20
+[2022-08-16 01:05:37,103] automodels.py->Med_innerTrain line:1038 [INFO]Train epoch: 3, batch_idx: 1500, global_img_step: 21
+[2022-08-16 01:08:55,478] automodels.py->Med_innerTrain line:1038 [INFO]Train epoch: 3, batch_idx: 2000, global_img_step: 22
+[2022-08-16 01:12:13,338] automodels.py->Med_innerTrain line:1038 [INFO]Train epoch: 3, batch_idx: 2500, global_img_step: 23
+[2022-08-16 01:12:37,136] automodels.py->Med_innerTrain line:1048 [INFO]Epoch: 3	 Inner Train loss: 0.6702, acc=0.7529, lr=0.000009	
+[2022-08-16 01:13:24,178] automodels.py->Med_innerTest line:1210 [INFO]Epoch: 3	 Test loss: 0.6315, score: 0.7635
+[2022-08-16 01:13:24,179] implicit-augment.py->main line:477 [INFO]SAVING trained model at epoch 3 with 0.7635 Dice score
+[2022-08-16 01:13:24,802] implicit-augment.py->main line:455 [INFO]20% (4/20)
+[2022-08-16 01:13:25,502] automodels.py->Med_innerTrain line:1038 [INFO]Train epoch: 4, batch_idx: 0, global_img_step: 24
+[2022-08-16 01:16:42,548] automodels.py->Med_innerTrain line:1038 [INFO]Train epoch: 4, batch_idx: 500, global_img_step: 25
+[2022-08-16 01:20:00,575] automodels.py->Med_innerTrain line:1038 [INFO]Train epoch: 4, batch_idx: 1000, global_img_step: 26
+[2022-08-16 01:23:19,261] automodels.py->Med_innerTrain line:1038 [INFO]Train epoch: 4, batch_idx: 1500, global_img_step: 27
+[2022-08-16 01:26:38,437] automodels.py->Med_innerTrain line:1038 [INFO]Train epoch: 4, batch_idx: 2000, global_img_step: 28
+[2022-08-16 01:29:57,410] automodels.py->Med_innerTrain line:1038 [INFO]Train epoch: 4, batch_idx: 2500, global_img_step: 29
+[2022-08-16 01:30:21,438] automodels.py->Med_innerTrain line:1048 [INFO]Epoch: 4	 Inner Train loss: 0.6571, acc=0.7575, lr=0.000009	
+[2022-08-16 01:31:08,777] automodels.py->Med_innerTest line:1210 [INFO]Epoch: 4	 Test loss: 0.6832, score: 0.7522
+[2022-08-16 01:31:08,777] implicit-augment.py->main line:455 [INFO]25% (5/20)
+[2022-08-16 01:31:09,586] automodels.py->Med_innerTrain line:1038 [INFO]Train epoch: 5, batch_idx: 0, global_img_step: 30
+[2022-08-16 01:34:28,517] automodels.py->Med_innerTrain line:1038 [INFO]Train epoch: 5, batch_idx: 500, global_img_step: 31
+[2022-08-16 01:37:47,556] automodels.py->Med_innerTrain line:1038 [INFO]Train epoch: 5, batch_idx: 1000, global_img_step: 32
+[2022-08-16 01:41:06,834] automodels.py->Med_innerTrain line:1038 [INFO]Train epoch: 5, batch_idx: 1500, global_img_step: 33
+[2022-08-16 01:44:26,239] automodels.py->Med_innerTrain line:1038 [INFO]Train epoch: 5, batch_idx: 2000, global_img_step: 34
+[2022-08-16 01:47:45,691] automodels.py->Med_innerTrain line:1038 [INFO]Train epoch: 5, batch_idx: 2500, global_img_step: 35
+[2022-08-16 01:48:09,939] automodels.py->Med_innerTrain line:1048 [INFO]Epoch: 5	 Inner Train loss: 0.6458, acc=0.7623, lr=0.000009	
+[2022-08-16 01:48:58,078] automodels.py->Med_innerTest line:1210 [INFO]Epoch: 5	 Test loss: 0.6167, score: 0.7640
+[2022-08-16 01:48:58,079] implicit-augment.py->main line:477 [INFO]SAVING trained model at epoch 5 with 0.7640 Dice score
+[2022-08-16 01:48:58,697] implicit-augment.py->main line:455 [INFO]30% (6/20)
+[2022-08-16 01:48:59,398] automodels.py->Med_hyperHesTrain line:933 [INFO]data point 0 weight: paramP_tensor([-2.4849, -2.4849, -2.4849, -2.4849, -2.4849, -2.4849, -2.4849, -2.4849,
+        -2.4849, -2.4849, -2.4849, -2.4849, -2.4849, -2.4849, -2.4849])
+[2022-08-16 01:48:59,400] automodels.py->Med_hyperHesTrain line:933 [INFO]data point 0 weight: paramM_tensor([0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.])
+[2022-08-16 01:48:59,623] automodels.py->Med_hyperHesTrain line:958 [INFO]hyperTrain epoch: 6, batch_idx: 0, global_img_step: 36, aug_ops:[('elastic transform', tensor([0.1547]))]
+[2022-08-16 01:48:59,624] automodels.py->Med_hyperHesTrain line:964 [INFO]hyperTrain batch 0% (0/5124), task_lr=0.000008, hyper_lr=0.012537	gLtNorm 0.5362 (0.5362)	gLvNorm 0.0420 (0.0420)	mvpNorm 0.7449 (0.7449)
+
+[2022-08-16 01:56:11,308] automodels.py->Med_hyperHesTrain line:958 [INFO]hyperTrain epoch: 6, batch_idx: 1000, global_img_step: 37, aug_ops:[('gaussian noise', tensor([0.1564]))]
+[2022-08-16 01:56:11,309] automodels.py->Med_hyperHesTrain line:964 [INFO]hyperTrain batch 20% (1000/5124), task_lr=0.000008, hyper_lr=0.014008	gLtNorm 4.9235 (23.5130)	gLvNorm 0.1025 (0.3345)	mvpNorm 6.2210 (24.0200)
+
+[2022-08-16 02:03:17,847] automodels.py->Med_hyperHesTrain line:958 [INFO]hyperTrain epoch: 6, batch_idx: 2000, global_img_step: 38, aug_ops:[('idenity', [1.0])]
+[2022-08-16 02:03:17,848] automodels.py->Med_hyperHesTrain line:964 [INFO]hyperTrain batch 39% (2000/5124), task_lr=0.000008, hyper_lr=0.015479	gLtNorm 8.3508 (23.2731)	gLvNorm 0.5490 (0.3477)	mvpNorm 13.1647 (23.6827)
+
+[2022-08-16 02:10:19,951] automodels.py->Med_hyperHesTrain line:958 [INFO]hyperTrain epoch: 6, batch_idx: 3000, global_img_step: 39, aug_ops:[('gaussian blur', tensor([1.])), ('TranslateY', tensor([0.0146]))]
+[2022-08-16 02:10:19,952] automodels.py->Med_hyperHesTrain line:964 [INFO]hyperTrain batch 59% (3000/5124), task_lr=0.000008, hyper_lr=0.016950	gLtNorm 0.1454 (23.4697)	gLvNorm 0.0489 (0.3323)	mvpNorm 0.0355 (23.9721)
+
+[2022-08-16 02:17:17,940] automodels.py->Med_hyperHesTrain line:958 [INFO]hyperTrain epoch: 6, batch_idx: 4000, global_img_step: 40, aug_ops:[('idenity', [1.0])]
+[2022-08-16 02:17:17,940] automodels.py->Med_hyperHesTrain line:964 [INFO]hyperTrain batch 78% (4000/5124), task_lr=0.000008, hyper_lr=0.018421	gLtNorm 0.0056 (23.0833)	gLvNorm 0.0874 (0.3383)	mvpNorm 0.0547 (23.5561)
+
+[2022-08-16 02:24:16,364] automodels.py->Med_hyperHesTrain line:958 [INFO]hyperTrain epoch: 6, batch_idx: 5000, global_img_step: 41, aug_ops:[('brightness', tensor([0.0323])), ('Hsv', tensor([-0.3434, -0.0682,  0.4739])), ('sharpen', tensor([0.4923])), ('TranslateY', tensor([0.3546]))]
+[2022-08-16 02:24:16,364] automodels.py->Med_hyperHesTrain line:964 [INFO]hyperTrain batch 98% (5000/5124), task_lr=0.000008, hyper_lr=0.019892	gLtNorm 72.3767 (22.4174)	gLvNorm 0.2258 (0.3432)	mvpNorm 78.9445 (22.8837)
+
+[2022-08-16 02:25:09,199] automodels.py->Med_innerTrain line:1036 [INFO]Train epoch: 6, batch_idx: 0, global_img_step: 42, aug_ops:[('idenity', [1.0])]
+[2022-08-16 02:30:36,835] automodels.py->Med_innerTrain line:1036 [INFO]Train epoch: 6, batch_idx: 500, global_img_step: 43, aug_ops:[('saturation', tensor([1.])), ('sharpen', tensor([0.4458])), ('gaussian noise', tensor([-0.2799]))]
+[2022-08-16 02:36:03,915] automodels.py->Med_innerTrain line:1036 [INFO]Train epoch: 6, batch_idx: 1000, global_img_step: 44, aug_ops:[('idenity', [1.0])]
+[2022-08-16 02:41:30,584] automodels.py->Med_innerTrain line:1036 [INFO]Train epoch: 6, batch_idx: 1500, global_img_step: 45, aug_ops:[('saturation', tensor([1.])), ('TranslateX', tensor([0.1104]))]
+[2022-08-16 02:46:57,156] automodels.py->Med_innerTrain line:1036 [INFO]Train epoch: 6, batch_idx: 2000, global_img_step: 46, aug_ops:[('gaussian blur', tensor([-0.2158])), ('elastic transform', tensor([0.1584]))]
+[2022-08-16 02:52:24,691] automodels.py->Med_innerTrain line:1036 [INFO]Train epoch: 6, batch_idx: 2500, global_img_step: 47, aug_ops:[('elastic transform', tensor([-0.3450])), ('TranslateX', tensor([0.4891]))]
+[2022-08-16 02:53:04,609] automodels.py->Med_innerTrain line:1048 [INFO]Epoch: 6	 Inner Train loss: 0.8262, acc=0.6850, lr=0.000008	
+[2022-08-16 02:53:49,721] automodels.py->Med_innerTest line:1210 [INFO]Epoch: 6	 Test loss: 0.6950, score: 0.7259
+[2022-08-16 02:53:49,722] implicit-augment.py->main line:455 [INFO]35% (7/20)
+[2022-08-16 02:53:50,380] automodels.py->Med_hyperHesTrain line:933 [INFO]data point 0 weight: paramP_tensor([-2.3414, -2.6284, -2.6284, -2.6284, -2.3414, -2.4849, -2.3414, -2.4849,
+        -2.4849, -2.3414, -2.6284, -2.6284, -2.3414, -2.6284, -2.6284])
+[2022-08-16 02:53:50,383] automodels.py->Med_hyperHesTrain line:933 [INFO]data point 0 weight: paramM_tensor([ 0.1435,  0.0000,  0.0000,  0.0000,  0.0000,  0.0000,  0.0000,  0.0000,
+         0.0000,  0.0000,  0.0000,  0.0000,  0.0000,  0.0000,  0.0000,  0.0000,
+         0.1435, -0.1435])
+[2022-08-16 02:53:50,551] automodels.py->Med_hyperHesTrain line:958 [INFO]hyperTrain epoch: 7, batch_idx: 0, global_img_step: 48, aug_ops:[('idenity', [1.0])]
+[2022-08-16 02:53:50,551] automodels.py->Med_hyperHesTrain line:964 [INFO]hyperTrain batch 0% (0/5124), task_lr=0.000007, hyper_lr=0.020074	gLtNorm 0.1784 (0.1784)	gLvNorm 0.0934 (0.0934)	mvpNorm 0.0208 (0.0208)
+
+[2022-08-16 03:00:54,144] automodels.py->Med_hyperHesTrain line:958 [INFO]hyperTrain epoch: 7, batch_idx: 1000, global_img_step: 49, aug_ops:[('ShearY', tensor([0.7807]))]
+[2022-08-16 03:00:54,145] automodels.py->Med_hyperHesTrain line:964 [INFO]hyperTrain batch 20% (1000/5124), task_lr=0.000007, hyper_lr=0.021545	gLtNorm 0.5763 (1.2914)	gLvNorm 0.0381 (0.4234)	mvpNorm 0.5602 (1.7479)
+
+[2022-08-16 03:07:59,812] automodels.py->Med_hyperHesTrain line:958 [INFO]hyperTrain epoch: 7, batch_idx: 2000, global_img_step: 50, aug_ops:[('saturation', tensor([0.0760])), ('Hsv', tensor([-0.0338,  0.3299,  0.3122]))]
+[2022-08-16 03:07:59,813] automodels.py->Med_hyperHesTrain line:964 [INFO]hyperTrain batch 39% (2000/5124), task_lr=0.000007, hyper_lr=0.023016	gLtNorm 0.1330 (1.1822)	gLvNorm 0.1185 (0.4176)	mvpNorm 0.0211 (1.6276)
+
+[2022-08-16 03:15:00,343] automodels.py->Med_hyperHesTrain line:958 [INFO]hyperTrain epoch: 7, batch_idx: 3000, global_img_step: 51, aug_ops:[('idenity', [1.0])]
+[2022-08-16 03:15:00,344] automodels.py->Med_hyperHesTrain line:964 [INFO]hyperTrain batch 59% (3000/5124), task_lr=0.000007, hyper_lr=0.024487	gLtNorm 0.1824 (1.2473)	gLvNorm 0.8738 (0.4056)	mvpNorm 1.0971 (1.6723)
+
+[2022-08-16 03:21:58,501] automodels.py->Med_hyperHesTrain line:958 [INFO]hyperTrain epoch: 7, batch_idx: 4000, global_img_step: 52, aug_ops:[('idenity', [1.0])]
+[2022-08-16 03:21:58,501] automodels.py->Med_hyperHesTrain line:964 [INFO]hyperTrain batch 78% (4000/5124), task_lr=0.000007, hyper_lr=0.025958	gLtNorm 0.1149 (1.1924)	gLvNorm 0.0967 (0.4093)	mvpNorm 0.0584 (1.6117)
+
+[2022-08-16 03:28:54,191] automodels.py->Med_hyperHesTrain line:958 [INFO]hyperTrain epoch: 7, batch_idx: 5000, global_img_step: 53, aug_ops:[('idenity', [1.0])]
+[2022-08-16 03:28:54,192] automodels.py->Med_hyperHesTrain line:964 [INFO]hyperTrain batch 98% (5000/5124), task_lr=0.000007, hyper_lr=0.027429	gLtNorm 0.2543 (1.1761)	gLvNorm 0.1335 (0.4066)	mvpNorm 0.0616 (1.5896)
+
+[2022-08-16 03:29:46,455] automodels.py->Med_innerTrain line:1036 [INFO]Train epoch: 7, batch_idx: 0, global_img_step: 54, aug_ops:[('ShearY', tensor([0.6965]))]
+[2022-08-16 03:35:10,687] automodels.py->Med_innerTrain line:1036 [INFO]Train epoch: 7, batch_idx: 500, global_img_step: 55, aug_ops:[('Rotate', tensor([-0.0140])), ('ShearX', tensor([-0.7637]))]
+[2022-08-16 03:40:36,973] automodels.py->Med_innerTrain line:1036 [INFO]Train epoch: 7, batch_idx: 1000, global_img_step: 56, aug_ops:[('contrast', tensor([-0.1210])), ('TranslateX', tensor([-0.0677]))]
+[2022-08-16 03:46:02,592] automodels.py->Med_innerTrain line:1036 [INFO]Train epoch: 7, batch_idx: 1500, global_img_step: 57, aug_ops:[('idenity', [1.0])]
+[2022-08-16 03:51:29,960] automodels.py->Med_innerTrain line:1036 [INFO]Train epoch: 7, batch_idx: 2000, global_img_step: 58, aug_ops:[('saturation', tensor([-0.4256])), ('Rotate', tensor([-0.1659])), ('ShearX', tensor([-0.2144]))]
+[2022-08-16 03:56:57,321] automodels.py->Med_innerTrain line:1036 [INFO]Train epoch: 7, batch_idx: 2500, global_img_step: 59, aug_ops:[('gaussian noise', tensor([0.4743])), ('Rotate', tensor([-0.4155]))]
+[2022-08-16 03:57:37,243] automodels.py->Med_innerTrain line:1048 [INFO]Epoch: 7	 Inner Train loss: 0.7794, acc=0.7044, lr=0.000007	
+[2022-08-16 03:58:22,200] automodels.py->Med_innerTest line:1210 [INFO]Epoch: 7	 Test loss: 0.6830, score: 0.7451
+[2022-08-16 03:58:22,201] implicit-augment.py->main line:455 [INFO]40% (8/20)
+[2022-08-16 03:58:22,861] automodels.py->Med_hyperHesTrain line:933 [INFO]data point 0 weight: paramP_tensor([-2.1168, -2.4039, -2.8530, -2.4039, -2.1168, -2.4849, -2.5659, -2.4849,
+        -2.4849, -2.1168, -2.8530, -2.4039, -2.5659, -2.8530, -2.4039])
+[2022-08-16 03:58:22,864] automodels.py->Med_hyperHesTrain line:933 [INFO]data point 0 weight: paramM_tensor([ 0.1435,  0.0000,  0.0000,  0.0000,  0.0000,  0.0000,  0.0000,  0.0000,
+         0.0000,  0.0000,  0.0000,  0.0000,  0.0000,  0.0000,  0.0000,  0.0000,
+         0.1435, -0.1435])
+[2022-08-16 03:58:23,066] automodels.py->Med_hyperHesTrain line:958 [INFO]hyperTrain epoch: 8, batch_idx: 0, global_img_step: 60, aug_ops:[('saturation', tensor([-1.]))]
+[2022-08-16 03:58:23,067] automodels.py->Med_hyperHesTrain line:964 [INFO]hyperTrain batch 0% (0/5124), task_lr=0.000007, hyper_lr=0.027611	gLtNorm 0.0193 (0.0193)	gLvNorm 0.0389 (0.0389)	mvpNorm 0.0628 (0.0628)
+
+[2022-08-16 04:05:23,982] automodels.py->Med_hyperHesTrain line:958 [INFO]hyperTrain epoch: 8, batch_idx: 1000, global_img_step: 61, aug_ops:[('gaussian blur', tensor([0.0127])), ('TranslateY', tensor([-0.2106])), ('ShearX', tensor([0.4295]))]
+[2022-08-16 04:05:23,982] automodels.py->Med_hyperHesTrain line:964 [INFO]hyperTrain batch 20% (1000/5124), task_lr=0.000007, hyper_lr=0.029082	gLtNorm 0.1048 (1.0246)	gLvNorm 0.1238 (0.4189)	mvpNorm 0.2610 (1.4151)
+
+[2022-08-16 04:12:25,220] automodels.py->Med_hyperHesTrain line:958 [INFO]hyperTrain epoch: 8, batch_idx: 2000, global_img_step: 62, aug_ops:[('idenity', [1.0])]
+[2022-08-16 04:12:25,220] automodels.py->Med_hyperHesTrain line:964 [INFO]hyperTrain batch 39% (2000/5124), task_lr=0.000007, hyper_lr=0.030553	gLtNorm 0.0383 (1.0437)	gLvNorm 0.0629 (0.4137)	mvpNorm 0.1443 (1.4354)
+
+[2022-08-16 04:19:30,742] automodels.py->Med_hyperHesTrain line:958 [INFO]hyperTrain epoch: 8, batch_idx: 3000, global_img_step: 63, aug_ops:[('sharpen', tensor([-0.2899]))]
+[2022-08-16 04:19:30,742] automodels.py->Med_hyperHesTrain line:964 [INFO]hyperTrain batch 59% (3000/5124), task_lr=0.000007, hyper_lr=0.032024	gLtNorm 0.0911 (1.0523)	gLvNorm 0.0590 (0.4222)	mvpNorm 0.2805 (1.4737)
+
+[2022-08-16 04:26:31,792] automodels.py->Med_hyperHesTrain line:958 [INFO]hyperTrain epoch: 8, batch_idx: 4000, global_img_step: 64, aug_ops:[('elastic transform', tensor([0.2239])), ('ShearX', tensor([0.5857]))]
+[2022-08-16 04:26:31,793] automodels.py->Med_hyperHesTrain line:964 [INFO]hyperTrain batch 78% (4000/5124), task_lr=0.000007, hyper_lr=0.033495	gLtNorm 0.2305 (1.1014)	gLvNorm 0.1169 (0.4101)	mvpNorm 0.4927 (1.5215)
+
+[2022-08-16 04:33:30,864] automodels.py->Med_hyperHesTrain line:958 [INFO]hyperTrain epoch: 8, batch_idx: 5000, global_img_step: 65, aug_ops:[('TranslateY', tensor([-0.2906]))]
+[2022-08-16 04:33:30,864] automodels.py->Med_hyperHesTrain line:964 [INFO]hyperTrain batch 98% (5000/5124), task_lr=0.000007, hyper_lr=0.034966	gLtNorm 0.0129 (1.0744)	gLvNorm 0.1897 (0.4120)	mvpNorm 0.1770 (1.4954)
+
+[2022-08-16 04:34:23,123] automodels.py->Med_innerTrain line:1036 [INFO]Train epoch: 8, batch_idx: 0, global_img_step: 66, aug_ops:[('idenity', [1.0])]
+[2022-08-16 04:39:46,886] automodels.py->Med_innerTrain line:1036 [INFO]Train epoch: 8, batch_idx: 500, global_img_step: 67, aug_ops:[('ShearY', tensor([1.]))]
+[2022-08-16 04:45:11,488] automodels.py->Med_innerTrain line:1036 [INFO]Train epoch: 8, batch_idx: 1000, global_img_step: 68, aug_ops:[('TranslateY', tensor([0.1995]))]
+[2022-08-16 04:50:36,286] automodels.py->Med_innerTrain line:1036 [INFO]Train epoch: 8, batch_idx: 1500, global_img_step: 69, aug_ops:[('Hed', tensor([ 0.4716, -0.4216, -0.1212]))]
+[2022-08-16 04:56:03,083] automodels.py->Med_innerTrain line:1036 [INFO]Train epoch: 8, batch_idx: 2000, global_img_step: 70, aug_ops:[('contrast', tensor([0.2490])), ('sharpen', tensor([0.3265]))]
+[2022-08-16 05:01:29,792] automodels.py->Med_innerTrain line:1036 [INFO]Train epoch: 8, batch_idx: 2500, global_img_step: 71, aug_ops:[('gaussian blur', tensor([-0.8943])), ('ShearY', tensor([0.2777]))]
+[2022-08-16 05:02:09,632] automodels.py->Med_innerTrain line:1048 [INFO]Epoch: 8	 Inner Train loss: 0.7581, acc=0.7142, lr=0.000007	
+[2022-08-16 05:02:54,708] automodels.py->Med_innerTest line:1210 [INFO]Epoch: 8	 Test loss: 0.6697, score: 0.7344
+[2022-08-16 05:02:54,708] implicit-augment.py->main line:455 [INFO]45% (9/20)
+[2022-08-16 05:02:55,369] automodels.py->Med_hyperHesTrain line:933 [INFO]data point 0 weight: paramP_tensor([-2.4398, -2.0809, -3.1760, -2.0809, -1.7938, -2.4849, -2.2431, -2.4849,
+        -2.4849, -2.4398, -3.1760, -2.7268, -2.8889, -3.1760, -2.0809])
+[2022-08-16 05:02:55,371] automodels.py->Med_hyperHesTrain line:933 [INFO]data point 0 weight: paramM_tensor([ 0.1435,  0.0000,  0.0000,  0.0000,  0.0000,  0.0000,  0.0000,  0.0000,
+         0.0000,  0.0000,  0.0000,  0.0000,  0.0000,  0.0000,  0.0000,  0.0000,
+         0.1435, -0.4665])
+[2022-08-16 05:02:55,505] automodels.py->Med_hyperHesTrain line:958 [INFO]hyperTrain epoch: 9, batch_idx: 0, global_img_step: 72, aug_ops:[('brightness', tensor([0.5726])), ('elastic transform', tensor([0.1964])), ('Rotate', tensor([0.0309]))]
+[2022-08-16 05:02:55,505] automodels.py->Med_hyperHesTrain line:964 [INFO]hyperTrain batch 0% (0/5124), task_lr=0.000006, hyper_lr=0.035148	gLtNorm 0.2924 (0.2924)	gLvNorm 0.0687 (0.0687)	mvpNorm 0.4021 (0.4021)
+
+[2022-08-16 05:09:56,397] automodels.py->Med_hyperHesTrain line:958 [INFO]hyperTrain epoch: 9, batch_idx: 1000, global_img_step: 73, aug_ops:[('Hsv', tensor([-1.0000,  0.5465, -0.6066]))]
+[2022-08-16 05:09:56,398] automodels.py->Med_hyperHesTrain line:964 [INFO]hyperTrain batch 20% (1000/5124), task_lr=0.000006, hyper_lr=0.036619	gLtNorm 0.1482 (1.0123)	gLvNorm 0.1019 (0.2777)	mvpNorm 0.0989 (1.2755)
+
+[2022-08-16 05:16:58,509] automodels.py->Med_hyperHesTrain line:958 [INFO]hyperTrain epoch: 9, batch_idx: 2000, global_img_step: 74, aug_ops:[('contrast', tensor([0.1260])), ('saturation', tensor([0.5113]))]
+[2022-08-16 05:16:58,510] automodels.py->Med_hyperHesTrain line:964 [INFO]hyperTrain batch 39% (2000/5124), task_lr=0.000006, hyper_lr=0.038090	gLtNorm 0.1033 (0.8966)	gLvNorm 0.0136 (0.3015)	mvpNorm 0.1481 (1.1747)
+
+[2022-08-16 05:24:01,888] automodels.py->Med_hyperHesTrain line:958 [INFO]hyperTrain epoch: 9, batch_idx: 3000, global_img_step: 75, aug_ops:[('contrast', tensor([-0.3658])), ('TranslateX', tensor([-0.3172])), ('ShearX', tensor([0.3683]))]
+[2022-08-16 05:24:01,889] automodels.py->Med_hyperHesTrain line:964 [INFO]hyperTrain batch 59% (3000/5124), task_lr=0.000006, hyper_lr=0.039561	gLtNorm 0.1375 (0.8748)	gLvNorm 0.1231 (0.3058)	mvpNorm 0.1407 (1.1646)
+
+[2022-08-16 05:31:07,178] automodels.py->Med_hyperHesTrain line:958 [INFO]hyperTrain epoch: 9, batch_idx: 4000, global_img_step: 76, aug_ops:[('idenity', [1.0])]
+[2022-08-16 05:31:07,178] automodels.py->Med_hyperHesTrain line:964 [INFO]hyperTrain batch 78% (4000/5124), task_lr=0.000006, hyper_lr=0.041032	gLtNorm 0.0913 (0.8776)	gLvNorm 0.0232 (0.3043)	mvpNorm 0.0606 (1.1693)
+
+[2022-08-16 05:38:08,574] automodels.py->Med_hyperHesTrain line:958 [INFO]hyperTrain epoch: 9, batch_idx: 5000, global_img_step: 77, aug_ops:[('sharpen', tensor([-0.7380]))]
+[2022-08-16 05:38:08,575] automodels.py->Med_hyperHesTrain line:964 [INFO]hyperTrain batch 98% (5000/5124), task_lr=0.000006, hyper_lr=0.042503	gLtNorm 0.3025 (0.8876)	gLvNorm 0.1480 (0.3026)	mvpNorm 0.0917 (1.1789)
+
+[2022-08-16 05:39:01,146] automodels.py->Med_innerTrain line:1036 [INFO]Train epoch: 9, batch_idx: 0, global_img_step: 78, aug_ops:[('elastic transform', tensor([-0.3843]))]
+[2022-08-16 05:44:26,582] automodels.py->Med_innerTrain line:1036 [INFO]Train epoch: 9, batch_idx: 500, global_img_step: 79, aug_ops:[('Equalize', tensor([-0.6528]))]
+[2022-08-16 05:49:49,082] automodels.py->Med_innerTrain line:1036 [INFO]Train epoch: 9, batch_idx: 1000, global_img_step: 80, aug_ops:[('brightness', tensor([0.3114])), ('saturation', tensor([-0.9230])), ('Equalize', tensor([0.3114]))]
+[2022-08-16 05:55:11,814] automodels.py->Med_innerTrain line:1036 [INFO]Train epoch: 9, batch_idx: 1500, global_img_step: 81, aug_ops:[('Rotate', tensor([-0.4462]))]
+[2022-08-16 06:00:36,172] automodels.py->Med_innerTrain line:1036 [INFO]Train epoch: 9, batch_idx: 2000, global_img_step: 82, aug_ops:[('idenity', [1.0])]
+[2022-08-16 06:06:01,360] automodels.py->Med_innerTrain line:1036 [INFO]Train epoch: 9, batch_idx: 2500, global_img_step: 83, aug_ops:[('Hed', tensor([ 0.1371, -0.5602, -0.7253])), ('sharpen', tensor([0.0820])), ('gaussian noise', tensor([-0.0857])), ('ShearX', tensor([0.7804]))]
+[2022-08-16 06:06:41,028] automodels.py->Med_innerTrain line:1048 [INFO]Epoch: 9	 Inner Train loss: 0.7500, acc=0.7172, lr=0.000001	
+[2022-08-16 06:07:25,724] automodels.py->Med_innerTest line:1210 [INFO]Epoch: 9	 Test loss: 0.6689, score: 0.7421
+[2022-08-16 06:07:25,724] implicit-augment.py->main line:455 [INFO]50% (10/20)
+[2022-08-16 06:07:26,391] automodels.py->Med_hyperHesTrain line:933 [INFO]data point 0 weight: paramP_tensor([-2.7982, -2.0809, -2.8176, -2.4393, -2.1522, -2.4849, -2.6014, -2.4849,
+        -2.4849, -2.7982, -2.8176, -2.3684, -3.2473, -2.8176, -2.4393])
+[2022-08-16 06:07:26,393] automodels.py->Med_hyperHesTrain line:933 [INFO]data point 0 weight: paramM_tensor([ 0.1435,  0.0000,  0.0000,  0.3584, -0.3584, -0.3584,  0.3584, -0.3584,
+        -0.3584,  0.0000,  0.0000,  0.0000,  0.0000,  0.0000,  0.0000,  0.0000,
+         0.1435, -0.4665])
+[2022-08-16 06:07:26,544] automodels.py->Med_hyperHesTrain line:958 [INFO]hyperTrain epoch: 10, batch_idx: 0, global_img_step: 84, aug_ops:[('gaussian noise', tensor([-0.2315]))]
+[2022-08-16 06:07:26,544] automodels.py->Med_hyperHesTrain line:964 [INFO]hyperTrain batch 0% (0/5124), task_lr=0.000005, hyper_lr=0.037513	gLtNorm 0.0487 (0.0487)	gLvNorm 0.3737 (0.3737)	mvpNorm 0.3845 (0.3845)
+
+[2022-08-16 06:14:26,370] automodels.py->Med_hyperHesTrain line:958 [INFO]hyperTrain epoch: 10, batch_idx: 1000, global_img_step: 85, aug_ops:[('contrast', tensor([-0.0752]))]
+[2022-08-16 06:14:26,370] automodels.py->Med_hyperHesTrain line:964 [INFO]hyperTrain batch 20% (1000/5124), task_lr=0.000005, hyper_lr=0.037513	gLtNorm 0.0412 (1.1199)	gLvNorm 0.1968 (0.3636)	mvpNorm 0.2324 (1.4330)
+
+[2022-08-16 06:21:28,482] automodels.py->Med_hyperHesTrain line:958 [INFO]hyperTrain epoch: 10, batch_idx: 2000, global_img_step: 86, aug_ops:[('gaussian noise', tensor([-0.2456])), ('elastic transform', tensor([-0.1233]))]
+[2022-08-16 06:21:28,483] automodels.py->Med_hyperHesTrain line:964 [INFO]hyperTrain batch 39% (2000/5124), task_lr=0.000005, hyper_lr=0.037513	gLtNorm 1.6505 (1.0325)	gLvNorm 0.0195 (0.3644)	mvpNorm 1.8466 (1.3503)
+
+[2022-08-16 06:28:30,396] automodels.py->Med_hyperHesTrain line:958 [INFO]hyperTrain epoch: 10, batch_idx: 3000, global_img_step: 87, aug_ops:[('Equalize', tensor([0.0080]))]
+[2022-08-16 06:28:30,397] automodels.py->Med_hyperHesTrain line:964 [INFO]hyperTrain batch 59% (3000/5124), task_lr=0.000005, hyper_lr=0.037513	gLtNorm 0.1312 (1.0455)	gLvNorm 0.0428 (0.3765)	mvpNorm 0.2844 (1.3736)
+
+[2022-08-16 06:35:32,539] automodels.py->Med_hyperHesTrain line:958 [INFO]hyperTrain epoch: 10, batch_idx: 4000, global_img_step: 88, aug_ops:[('ShearY', tensor([-0.6460]))]
+[2022-08-16 06:35:32,540] automodels.py->Med_hyperHesTrain line:964 [INFO]hyperTrain batch 78% (4000/5124), task_lr=0.000005, hyper_lr=0.037513	gLtNorm 0.0862 (1.0505)	gLvNorm 0.0458 (0.3742)	mvpNorm 0.2538 (1.3747)
+
+[2022-08-16 06:42:37,947] automodels.py->Med_hyperHesTrain line:958 [INFO]hyperTrain epoch: 10, batch_idx: 5000, global_img_step: 89, aug_ops:[('idenity', [1.0])]
+[2022-08-16 06:42:37,948] automodels.py->Med_hyperHesTrain line:964 [INFO]hyperTrain batch 98% (5000/5124), task_lr=0.000005, hyper_lr=0.037513	gLtNorm 0.0939 (1.0711)	gLvNorm 0.1474 (0.3733)	mvpNorm 0.0442 (1.3953)
+
+[2022-08-16 06:43:31,073] automodels.py->Med_innerTrain line:1036 [INFO]Train epoch: 10, batch_idx: 0, global_img_step: 90, aug_ops:[('Hed', tensor([ 0.6782, -0.1779,  0.0123]))]
+[2022-08-16 06:48:58,235] automodels.py->Med_innerTrain line:1036 [INFO]Train epoch: 10, batch_idx: 500, global_img_step: 91, aug_ops:[('Hsv', tensor([-0.2916,  0.0849, -0.5391]))]
+[2022-08-16 06:54:23,682] automodels.py->Med_innerTrain line:1036 [INFO]Train epoch: 10, batch_idx: 1000, global_img_step: 92, aug_ops:[('gaussian blur', tensor([-0.0884]))]
+[2022-08-16 06:59:47,949] automodels.py->Med_innerTrain line:1036 [INFO]Train epoch: 10, batch_idx: 1500, global_img_step: 93, aug_ops:[('gaussian noise', tensor([0.1441]))]
+[2022-08-16 07:05:11,264] automodels.py->Med_innerTrain line:1036 [INFO]Train epoch: 10, batch_idx: 2000, global_img_step: 94, aug_ops:[('elastic transform', tensor([0.2038]))]
+[2022-08-16 07:10:34,651] automodels.py->Med_innerTrain line:1036 [INFO]Train epoch: 10, batch_idx: 2500, global_img_step: 95, aug_ops:[('Hed', tensor([-0.0910, -0.5895,  0.0820]))]
+[2022-08-16 07:11:14,373] automodels.py->Med_innerTrain line:1048 [INFO]Epoch: 10	 Inner Train loss: 0.7380, acc=0.7222, lr=0.000005	
+[2022-08-16 07:11:59,181] automodels.py->Med_innerTest line:1210 [INFO]Epoch: 10	 Test loss: 0.6447, score: 0.7510
+[2022-08-16 07:11:59,182] implicit-augment.py->main line:455 [INFO]55% (11/20)
+[2022-08-16 07:11:59,848] automodels.py->Med_hyperHesTrain line:933 [INFO]data point 0 weight: paramP_tensor([-3.1733, -2.4560, -2.4425, -2.0642, -1.7771, -2.4849, -2.2263, -2.4849,
+        -2.4849, -3.1734, -3.1927, -1.9933, -3.6224, -2.4425, -2.8144])
+[2022-08-16 07:11:59,850] automodels.py->Med_hyperHesTrain line:933 [INFO]data point 0 weight: paramM_tensor([ 0.1435,  0.0000,  0.0000,  0.3584, -0.3584, -0.3584,  0.3584, -0.3584,
+        -0.3584, -0.3751,  0.0000,  0.0000,  0.0000,  0.0000,  0.0000,  0.0000,
+         0.1435, -0.4665])
+[2022-08-16 07:12:00,016] automodels.py->Med_hyperHesTrain line:958 [INFO]hyperTrain epoch: 11, batch_idx: 0, global_img_step: 96, aug_ops:[('idenity', [1.0])]
+[2022-08-16 07:12:00,016] automodels.py->Med_hyperHesTrain line:964 [INFO]hyperTrain batch 0% (0/5124), task_lr=0.000004, hyper_lr=0.032743	gLtNorm 0.0340 (0.0340)	gLvNorm 0.1567 (0.1567)	mvpNorm 0.2391 (0.2391)
+
+[2022-08-16 07:19:00,829] automodels.py->Med_hyperHesTrain line:958 [INFO]hyperTrain epoch: 11, batch_idx: 1000, global_img_step: 97, aug_ops:[('contrast', tensor([-0.0955])), ('saturation', tensor([0.3116])), ('Hsv', tensor([ 1.0000, -0.3577, -0.7218]))]
+[2022-08-16 07:19:00,830] automodels.py->Med_hyperHesTrain line:964 [INFO]hyperTrain batch 20% (1000/5124), task_lr=0.000004, hyper_lr=0.032743	gLtNorm 1.9930 (0.5554)	gLvNorm 0.0561 (0.3266)	mvpNorm 2.1276 (0.8525)
+
+[2022-08-16 07:26:03,088] automodels.py->Med_hyperHesTrain line:958 [INFO]hyperTrain epoch: 11, batch_idx: 2000, global_img_step: 98, aug_ops:[('TranslateX', tensor([-0.8653])), ('TranslateY', tensor([-0.7846]))]
+[2022-08-16 07:26:03,089] automodels.py->Med_hyperHesTrain line:964 [INFO]hyperTrain batch 39% (2000/5124), task_lr=0.000004, hyper_lr=0.032743	gLtNorm 0.0619 (0.5718)	gLvNorm 0.1349 (0.3244)	mvpNorm 0.1815 (0.8787)
+
+[2022-08-16 07:33:06,681] automodels.py->Med_hyperHesTrain line:958 [INFO]hyperTrain epoch: 11, batch_idx: 3000, global_img_step: 99, aug_ops:[('ShearX', tensor([0.4329]))]
+[2022-08-16 07:33:06,682] automodels.py->Med_hyperHesTrain line:964 [INFO]hyperTrain batch 59% (3000/5124), task_lr=0.000004, hyper_lr=0.032743	gLtNorm 0.1114 (0.6001)	gLvNorm 0.6173 (0.3362)	mvpNorm 0.7096 (0.9215)
+
+[2022-08-16 07:40:12,135] automodels.py->Med_hyperHesTrain line:958 [INFO]hyperTrain epoch: 11, batch_idx: 4000, global_img_step: 100, aug_ops:[('idenity', [1.0])]
+[2022-08-16 07:40:12,135] automodels.py->Med_hyperHesTrain line:964 [INFO]hyperTrain batch 78% (4000/5124), task_lr=0.000004, hyper_lr=0.032743	gLtNorm 0.0518 (0.5927)	gLvNorm 0.0937 (0.3300)	mvpNorm 0.0516 (0.9105)
+
+[2022-08-16 07:47:17,569] automodels.py->Med_hyperHesTrain line:958 [INFO]hyperTrain epoch: 11, batch_idx: 5000, global_img_step: 101, aug_ops:[('TranslateY', tensor([0.2285]))]
+[2022-08-16 07:47:17,569] automodels.py->Med_hyperHesTrain line:964 [INFO]hyperTrain batch 98% (5000/5124), task_lr=0.000004, hyper_lr=0.032743	gLtNorm 0.0649 (0.6161)	gLvNorm 0.0851 (0.3237)	mvpNorm 0.0287 (0.9308)
+
+[2022-08-16 07:48:11,105] automodels.py->Med_innerTrain line:1036 [INFO]Train epoch: 11, batch_idx: 0, global_img_step: 102, aug_ops:[('Hsv', tensor([-0.5337,  0.0767,  0.8775]))]
+[2022-08-16 07:53:42,616] automodels.py->Med_innerTrain line:1036 [INFO]Train epoch: 11, batch_idx: 500, global_img_step: 103, aug_ops:[('elastic transform', tensor([-0.3516])), ('Equalize', tensor([-0.0735]))]
+[2022-08-16 07:59:11,101] automodels.py->Med_innerTrain line:1036 [INFO]Train epoch: 11, batch_idx: 1000, global_img_step: 104, aug_ops:[('ShearY', tensor([0.1775]))]
+[2022-08-16 08:04:38,796] automodels.py->Med_innerTrain line:1036 [INFO]Train epoch: 11, batch_idx: 1500, global_img_step: 105, aug_ops:[('TranslateY', tensor([-0.3078]))]
+[2022-08-16 08:10:03,812] automodels.py->Med_innerTrain line:1036 [INFO]Train epoch: 11, batch_idx: 2000, global_img_step: 106, aug_ops:[('contrast', tensor([0.6710]))]
+[2022-08-16 08:15:27,227] automodels.py->Med_innerTrain line:1036 [INFO]Train epoch: 11, batch_idx: 2500, global_img_step: 107, aug_ops:[('gaussian noise', tensor([0.4701])), ('Equalize', tensor([0.0813]))]
+[2022-08-16 08:16:06,818] automodels.py->Med_innerTrain line:1048 [INFO]Epoch: 11	 Inner Train loss: 0.7274, acc=0.7258, lr=0.000004	
+[2022-08-16 08:16:51,310] automodels.py->Med_innerTest line:1210 [INFO]Epoch: 11	 Test loss: 0.6700, score: 0.7402
+[2022-08-16 08:16:51,310] implicit-augment.py->main line:455 [INFO]60% (12/20)
+[2022-08-16 08:16:51,963] automodels.py->Med_hyperHesTrain line:933 [INFO]data point 0 weight: paramP_tensor([-3.5007, -2.1293, -2.7602, -1.8514, -1.8506, -2.4849, -2.1120, -2.4849,
+        -2.4849, -3.0311, -2.8656, -2.3207, -3.9493, -2.7699, -3.1356])
+[2022-08-16 08:16:51,966] automodels.py->Med_hyperHesTrain line:933 [INFO]data point 0 weight: paramM_tensor([ 0.1435,  0.0000,  0.0000,  0.3584, -0.3584, -0.3584,  0.6858, -0.6858,
+        -0.6858, -0.3751,  0.0000,  0.0000,  0.0000,  0.0000,  0.0000,  0.0000,
+         0.1435, -0.4665])
+[2022-08-16 08:16:52,168] automodels.py->Med_hyperHesTrain line:958 [INFO]hyperTrain epoch: 12, batch_idx: 0, global_img_step: 108, aug_ops:[('Hed', tensor([ 0.4978,  0.3229, -0.5304]))]
+[2022-08-16 08:16:52,168] automodels.py->Med_hyperHesTrain line:964 [INFO]hyperTrain batch 0% (0/5124), task_lr=0.000003, hyper_lr=0.027636	gLtNorm 0.3453 (0.3453)	gLvNorm 0.1267 (0.1267)	mvpNorm 0.3806 (0.3806)
+
+[2022-08-16 08:23:49,030] automodels.py->Med_hyperHesTrain line:958 [INFO]hyperTrain epoch: 12, batch_idx: 1000, global_img_step: 109, aug_ops:[('contrast', tensor([0.9123])), ('saturation', tensor([0.2403])), ('Hed', tensor([ 0.1671, -0.4967,  0.0205])), ('ShearX', tensor([0.1857]))]
+[2022-08-16 08:23:49,030] automodels.py->Med_hyperHesTrain line:964 [INFO]hyperTrain batch 20% (1000/5124), task_lr=0.000003, hyper_lr=0.027636	gLtNorm 0.3359 (0.6455)	gLvNorm 0.0247 (0.3512)	mvpNorm 0.2880 (0.9767)
+
+[2022-08-16 08:30:48,262] automodels.py->Med_hyperHesTrain line:958 [INFO]hyperTrain epoch: 12, batch_idx: 2000, global_img_step: 110, aug_ops:[('idenity', [1.0])]
+[2022-08-16 08:30:48,262] automodels.py->Med_hyperHesTrain line:964 [INFO]hyperTrain batch 39% (2000/5124), task_lr=0.000003, hyper_lr=0.027636	gLtNorm 0.5284 (0.6829)	gLvNorm 0.0201 (0.3591)	mvpNorm 0.6605 (1.0107)
+
+[2022-08-16 08:37:51,179] automodels.py->Med_hyperHesTrain line:958 [INFO]hyperTrain epoch: 12, batch_idx: 3000, global_img_step: 111, aug_ops:[('Hed', tensor([-0.1467,  0.2910,  0.1964])), ('gaussian noise', tensor([-0.0685]))]
+[2022-08-16 08:37:51,180] automodels.py->Med_hyperHesTrain line:964 [INFO]hyperTrain batch 59% (3000/5124), task_lr=0.000003, hyper_lr=0.027636	gLtNorm 0.2944 (0.6769)	gLvNorm 0.8257 (0.3432)	mvpNorm 1.7547 (0.9840)
+
+[2022-08-16 08:44:55,566] automodels.py->Med_hyperHesTrain line:958 [INFO]hyperTrain epoch: 12, batch_idx: 4000, global_img_step: 112, aug_ops:[('idenity', [1.0])]
+[2022-08-16 08:44:55,567] automodels.py->Med_hyperHesTrain line:964 [INFO]hyperTrain batch 78% (4000/5124), task_lr=0.000003, hyper_lr=0.027636	gLtNorm 0.1735 (0.6723)	gLvNorm 0.1733 (0.3432)	mvpNorm 0.0518 (0.9661)
+
+[2022-08-16 08:52:01,646] automodels.py->Med_hyperHesTrain line:958 [INFO]hyperTrain epoch: 12, batch_idx: 5000, global_img_step: 113, aug_ops:[('TranslateY', tensor([-0.1086]))]
+[2022-08-16 08:52:01,646] automodels.py->Med_hyperHesTrain line:964 [INFO]hyperTrain batch 98% (5000/5124), task_lr=0.000003, hyper_lr=0.027636	gLtNorm 1.3559 (0.6696)	gLvNorm 0.6026 (0.3467)	mvpNorm 0.2067 (0.9633)
+
+[2022-08-16 08:52:55,151] automodels.py->Med_innerTrain line:1036 [INFO]Train epoch: 12, batch_idx: 0, global_img_step: 114, aug_ops:[('Hsv', tensor([-0.8798, -0.2198, -0.1846]))]
+[2022-08-16 08:58:25,786] automodels.py->Med_innerTrain line:1036 [INFO]Train epoch: 12, batch_idx: 500, global_img_step: 115, aug_ops:[('saturation', tensor([0.6395]))]
+[2022-08-16 09:03:57,705] automodels.py->Med_innerTrain line:1036 [INFO]Train epoch: 12, batch_idx: 1000, global_img_step: 116, aug_ops:[('ShearY', tensor([0.7855]))]
+[2022-08-16 09:09:27,360] automodels.py->Med_innerTrain line:1036 [INFO]Train epoch: 12, batch_idx: 1500, global_img_step: 117, aug_ops:[('ShearX', tensor([-0.7703])), ('Equalize', tensor([-0.2347]))]
+[2022-08-16 09:14:54,903] automodels.py->Med_innerTrain line:1036 [INFO]Train epoch: 12, batch_idx: 2000, global_img_step: 118, aug_ops:[('brightness', tensor([-0.5615]))]
+[2022-08-16 09:20:20,209] automodels.py->Med_innerTrain line:1036 [INFO]Train epoch: 12, batch_idx: 2500, global_img_step: 119, aug_ops:[('Hsv', tensor([0.8769, 0.9652, 0.4635])), ('TranslateY', tensor([-0.1879]))]
+[2022-08-16 09:20:59,788] automodels.py->Med_innerTrain line:1048 [INFO]Epoch: 12	 Inner Train loss: 0.7173, acc=0.7301, lr=0.000003	
+[2022-08-16 09:21:44,437] automodels.py->Med_innerTest line:1210 [INFO]Epoch: 12	 Test loss: 0.6474, score: 0.7582
+[2022-08-16 09:21:44,437] implicit-augment.py->main line:455 [INFO]65% (13/20)
+[2022-08-16 09:21:45,096] automodels.py->Med_hyperHesTrain line:933 [INFO]data point 0 weight: paramP_tensor([-3.2243, -1.8530, -3.0366, -1.5750, -1.5742, -2.4849, -2.3883, -2.4849,
+        -2.4849, -2.7548, -3.1419, -2.0444, -4.2256, -3.0462, -3.4119])
+[2022-08-16 09:21:45,099] automodels.py->Med_hyperHesTrain line:933 [INFO]data point 0 weight: paramM_tensor([ 0.1435,  0.0000,  0.0000,  0.3584, -0.3584, -0.3584,  0.6858, -0.4095,
+        -0.4095, -0.3751,  0.0000,  0.0000,  0.0000,  0.0000,  0.0000,  0.2764,
+         0.1435, -0.4665])
+[2022-08-16 09:21:45,271] automodels.py->Med_hyperHesTrain line:958 [INFO]hyperTrain epoch: 13, batch_idx: 0, global_img_step: 120, aug_ops:[('idenity', [1.0])]
+[2022-08-16 09:21:45,272] automodels.py->Med_hyperHesTrain line:964 [INFO]hyperTrain batch 0% (0/5124), task_lr=0.000003, hyper_lr=0.022414	gLtNorm 0.0257 (0.0257)	gLvNorm 0.2792 (0.2792)	mvpNorm 0.1808 (0.1808)
+
+[2022-08-16 09:28:43,303] automodels.py->Med_hyperHesTrain line:958 [INFO]hyperTrain epoch: 13, batch_idx: 1000, global_img_step: 121, aug_ops:[('brightness', tensor([-0.2185])), ('saturation', tensor([0.5728]))]
+[2022-08-16 09:28:43,304] automodels.py->Med_hyperHesTrain line:964 [INFO]hyperTrain batch 20% (1000/5124), task_lr=0.000003, hyper_lr=0.022414	gLtNorm 0.3964 (0.8508)	gLvNorm 0.0409 (0.3485)	mvpNorm 0.5872 (1.1694)
+
+[2022-08-16 09:35:43,873] automodels.py->Med_hyperHesTrain line:958 [INFO]hyperTrain epoch: 13, batch_idx: 2000, global_img_step: 122, aug_ops:[('contrast', tensor([0.8751])), ('gaussian blur', tensor([-0.3523])), ('ShearX', tensor([0.1703]))]
+[2022-08-16 09:35:43,873] automodels.py->Med_hyperHesTrain line:964 [INFO]hyperTrain batch 39% (2000/5124), task_lr=0.000003, hyper_lr=0.022414	gLtNorm 0.0184 (0.8572)	gLvNorm 0.0684 (0.3218)	mvpNorm 0.1133 (1.1629)
+
+[2022-08-16 09:42:46,202] automodels.py->Med_hyperHesTrain line:958 [INFO]hyperTrain epoch: 13, batch_idx: 3000, global_img_step: 123, aug_ops:[('TranslateX', tensor([-0.4538])), ('ShearX', tensor([-0.2631]))]
+[2022-08-16 09:42:46,202] automodels.py->Med_hyperHesTrain line:964 [INFO]hyperTrain batch 59% (3000/5124), task_lr=0.000003, hyper_lr=0.022414	gLtNorm 0.0430 (0.7966)	gLvNorm 0.1866 (0.3318)	mvpNorm 0.0574 (1.1199)
+
+[2022-08-16 09:49:51,808] automodels.py->Med_hyperHesTrain line:958 [INFO]hyperTrain epoch: 13, batch_idx: 4000, global_img_step: 124, aug_ops:[('brightness', tensor([-0.7148])), ('TranslateY', tensor([-0.0420]))]
+[2022-08-16 09:49:51,809] automodels.py->Med_hyperHesTrain line:964 [INFO]hyperTrain batch 78% (4000/5124), task_lr=0.000003, hyper_lr=0.022414	gLtNorm 3.0194 (0.8594)	gLvNorm 0.0531 (0.3288)	mvpNorm 2.9759 (1.1815)
+
+[2022-08-16 09:56:56,581] automodels.py->Med_hyperHesTrain line:958 [INFO]hyperTrain epoch: 13, batch_idx: 5000, global_img_step: 125, aug_ops:[('sharpen', tensor([0.0091]))]
+[2022-08-16 09:56:56,581] automodels.py->Med_hyperHesTrain line:964 [INFO]hyperTrain batch 98% (5000/5124), task_lr=0.000003, hyper_lr=0.022414	gLtNorm 0.0511 (0.8426)	gLvNorm 0.3864 (0.3334)	mvpNorm 0.7099 (1.1707)
+
+[2022-08-16 09:57:49,934] automodels.py->Med_innerTrain line:1036 [INFO]Train epoch: 13, batch_idx: 0, global_img_step: 126, aug_ops:[('contrast', tensor([-0.2614])), ('TranslateY', tensor([1.]))]
+[2022-08-16 10:03:21,144] automodels.py->Med_innerTrain line:1036 [INFO]Train epoch: 13, batch_idx: 500, global_img_step: 127, aug_ops:[('sharpen', tensor([0.6696]))]
+[2022-08-16 10:08:51,090] automodels.py->Med_innerTrain line:1036 [INFO]Train epoch: 13, batch_idx: 1000, global_img_step: 128, aug_ops:[('idenity', [1.0])]
+[2022-08-16 10:14:23,071] automodels.py->Med_innerTrain line:1036 [INFO]Train epoch: 13, batch_idx: 1500, global_img_step: 129, aug_ops:[('gaussian noise', tensor([-0.1812])), ('Rotate', tensor([-0.3788]))]
+[2022-08-16 10:19:52,139] automodels.py->Med_innerTrain line:1036 [INFO]Train epoch: 13, batch_idx: 2000, global_img_step: 130, aug_ops:[('elastic transform', tensor([0.1742])), ('ShearY', tensor([-0.2505]))]
+[2022-08-16 10:25:19,080] automodels.py->Med_innerTrain line:1036 [INFO]Train epoch: 13, batch_idx: 2500, global_img_step: 131, aug_ops:[('idenity', [1.0])]
+[2022-08-16 10:25:58,825] automodels.py->Med_innerTrain line:1048 [INFO]Epoch: 13	 Inner Train loss: 0.7091, acc=0.7332, lr=0.000000	
+[2022-08-16 10:26:43,542] automodels.py->Med_innerTest line:1210 [INFO]Epoch: 13	 Test loss: 0.6573, score: 0.7467
+[2022-08-16 10:26:43,543] implicit-augment.py->main line:455 [INFO]70% (14/20)
+[2022-08-16 10:26:44,209] automodels.py->Med_hyperHesTrain line:933 [INFO]data point 0 weight: paramP_tensor([-3.4485, -1.8530, -3.2607, -1.3509, -1.3501, -2.4849, -2.1641, -2.4849,
+        -2.4849, -2.5306, -3.3661, -1.8202, -4.0015, -3.2704, -3.1878])
+[2022-08-16 10:26:44,212] automodels.py->Med_hyperHesTrain line:933 [INFO]data point 0 weight: paramM_tensor([ 0.1435,  0.0000,  0.0000,  0.3584, -0.3584, -0.3584,  0.6858, -0.4095,
+        -0.4095, -0.3751,  0.0000,  0.0000,  0.0000,  0.0000,  0.0000,  0.2764,
+         0.1435, -0.4665])
+[2022-08-16 10:26:44,381] automodels.py->Med_hyperHesTrain line:958 [INFO]hyperTrain epoch: 14, batch_idx: 0, global_img_step: 132, aug_ops:[('brightness', tensor([-0.0385]))]
+[2022-08-16 10:26:44,381] automodels.py->Med_hyperHesTrain line:964 [INFO]hyperTrain batch 0% (0/5124), task_lr=0.000002, hyper_lr=0.017307	gLtNorm 0.0811 (0.0811)	gLvNorm 0.6282 (0.6282)	mvpNorm 1.1392 (1.1392)
+
+[2022-08-16 10:33:42,629] automodels.py->Med_hyperHesTrain line:958 [INFO]hyperTrain epoch: 14, batch_idx: 1000, global_img_step: 133, aug_ops:[('sharpen', tensor([-0.1889])), ('TranslateX', tensor([-0.1555]))]
+[2022-08-16 10:33:42,630] automodels.py->Med_hyperHesTrain line:964 [INFO]hyperTrain batch 20% (1000/5124), task_lr=0.000002, hyper_lr=0.017307	gLtNorm 0.0229 (0.7404)	gLvNorm 0.1265 (0.3200)	mvpNorm 0.1675 (0.9933)
+
+[2022-08-16 10:40:40,902] automodels.py->Med_hyperHesTrain line:958 [INFO]hyperTrain epoch: 14, batch_idx: 2000, global_img_step: 134, aug_ops:[('gaussian blur', tensor([-0.1662])), ('sharpen', tensor([-0.3029])), ('Equalize', tensor([0.2754]))]
+[2022-08-16 10:40:40,903] automodels.py->Med_hyperHesTrain line:964 [INFO]hyperTrain batch 39% (2000/5124), task_lr=0.000002, hyper_lr=0.017307	gLtNorm 0.6739 (0.6620)	gLvNorm 0.1939 (0.3175)	mvpNorm 1.5141 (0.9251)
+
+[2022-08-16 10:47:41,189] automodels.py->Med_hyperHesTrain line:958 [INFO]hyperTrain epoch: 14, batch_idx: 3000, global_img_step: 135, aug_ops:[('brightness', tensor([-0.1450]))]
+[2022-08-16 10:47:41,189] automodels.py->Med_hyperHesTrain line:964 [INFO]hyperTrain batch 59% (3000/5124), task_lr=0.000002, hyper_lr=0.017307	gLtNorm 0.0740 (0.6723)	gLvNorm 0.1174 (0.3210)	mvpNorm 0.0628 (0.9390)
+
+[2022-08-16 10:54:42,813] automodels.py->Med_hyperHesTrain line:958 [INFO]hyperTrain epoch: 14, batch_idx: 4000, global_img_step: 136, aug_ops:[('saturation', tensor([-0.7111])), ('gaussian noise', tensor([-0.2175]))]
+[2022-08-16 10:54:42,814] automodels.py->Med_hyperHesTrain line:964 [INFO]hyperTrain batch 78% (4000/5124), task_lr=0.000002, hyper_lr=0.017307	gLtNorm 0.3588 (0.6495)	gLvNorm 0.0550 (0.3211)	mvpNorm 0.4875 (0.9252)
+
+[2022-08-16 11:01:47,926] automodels.py->Med_hyperHesTrain line:958 [INFO]hyperTrain epoch: 14, batch_idx: 5000, global_img_step: 137, aug_ops:[('elastic transform', tensor([-0.4676])), ('TranslateY', tensor([0.0424]))]
+[2022-08-16 11:01:47,926] automodels.py->Med_hyperHesTrain line:964 [INFO]hyperTrain batch 98% (5000/5124), task_lr=0.000002, hyper_lr=0.017307	gLtNorm 0.0763 (0.6444)	gLvNorm 0.0762 (0.3189)	mvpNorm 0.0039 (0.9260)
+
+[2022-08-16 11:02:41,313] automodels.py->Med_innerTrain line:1036 [INFO]Train epoch: 14, batch_idx: 0, global_img_step: 138, aug_ops:[('TranslateY', tensor([-0.1897]))]
+[2022-08-16 11:08:11,096] automodels.py->Med_innerTrain line:1036 [INFO]Train epoch: 14, batch_idx: 500, global_img_step: 139, aug_ops:[('ShearY', tensor([0.3980]))]
+[2022-08-16 11:13:39,552] automodels.py->Med_innerTrain line:1036 [INFO]Train epoch: 14, batch_idx: 1000, global_img_step: 140, aug_ops:[('elastic transform', tensor([-0.8960]))]
+[2022-08-16 11:19:10,187] automodels.py->Med_innerTrain line:1036 [INFO]Train epoch: 14, batch_idx: 1500, global_img_step: 141, aug_ops:[('idenity', [1.0])]
+[2022-08-16 11:24:42,552] automodels.py->Med_innerTrain line:1036 [INFO]Train epoch: 14, batch_idx: 2000, global_img_step: 142, aug_ops:[('Hsv', tensor([ 0.4499,  0.4290, -0.3577])), ('gaussian noise', tensor([-0.6098])), ('TranslateX', tensor([-0.3311]))]
+[2022-08-16 11:30:13,993] automodels.py->Med_innerTrain line:1036 [INFO]Train epoch: 14, batch_idx: 2500, global_img_step: 143, aug_ops:[('idenity', [1.0])]
+[2022-08-16 11:30:54,311] automodels.py->Med_innerTrain line:1048 [INFO]Epoch: 14	 Inner Train loss: 0.7108, acc=0.7324, lr=0.000002	
+[2022-08-16 11:31:39,705] automodels.py->Med_innerTest line:1210 [INFO]Epoch: 14	 Test loss: 0.6487, score: 0.7465
+[2022-08-16 11:31:39,706] implicit-augment.py->main line:455 [INFO]75% (15/20)
+[2022-08-16 11:31:40,371] automodels.py->Med_hyperHesTrain line:933 [INFO]data point 0 weight: paramP_tensor([-3.6215, -1.6799, -3.0877, -1.1778, -1.1770, -2.4849, -2.1641, -2.4849,
+        -2.4849, -2.3576, -3.5392, -1.6471, -4.1745, -3.0973, -3.3608])
+[2022-08-16 11:31:40,373] automodels.py->Med_hyperHesTrain line:933 [INFO]data point 0 weight: paramM_tensor([ 0.1435,  0.0000,  0.0000,  0.3584, -0.3584, -0.3584,  0.6858, -0.4095,
+        -0.4095, -0.3751,  0.0000,  0.0000,  0.0000,  0.0000,  0.0000,  0.2764,
+         0.1435, -0.4665])
+[2022-08-16 11:31:40,527] automodels.py->Med_hyperHesTrain line:958 [INFO]hyperTrain epoch: 15, batch_idx: 0, global_img_step: 144, aug_ops:[('Equalize', tensor([-0.1773]))]
+[2022-08-16 11:31:40,527] automodels.py->Med_hyperHesTrain line:964 [INFO]hyperTrain batch 0% (0/5124), task_lr=0.000001, hyper_lr=0.012538	gLtNorm 0.4438 (0.4438)	gLvNorm 0.0286 (0.0286)	mvpNorm 0.3106 (0.3106)
+
+[2022-08-16 11:38:43,114] automodels.py->Med_hyperHesTrain line:958 [INFO]hyperTrain epoch: 15, batch_idx: 1000, global_img_step: 145, aug_ops:[('idenity', [1.0])]
+[2022-08-16 11:38:43,114] automodels.py->Med_hyperHesTrain line:964 [INFO]hyperTrain batch 20% (1000/5124), task_lr=0.000001, hyper_lr=0.012538	gLtNorm 0.1078 (0.8477)	gLvNorm 0.0538 (0.2672)	mvpNorm 0.0911 (1.0984)
+
+[2022-08-16 11:45:43,989] automodels.py->Med_hyperHesTrain line:958 [INFO]hyperTrain epoch: 15, batch_idx: 2000, global_img_step: 146, aug_ops:[('idenity', [1.0])]
+[2022-08-16 11:45:43,990] automodels.py->Med_hyperHesTrain line:964 [INFO]hyperTrain batch 39% (2000/5124), task_lr=0.000001, hyper_lr=0.012538	gLtNorm 0.0792 (0.7325)	gLvNorm 0.2510 (0.2770)	mvpNorm 0.2522 (1.0063)
+
+[2022-08-16 11:52:42,315] automodels.py->Med_hyperHesTrain line:958 [INFO]hyperTrain epoch: 15, batch_idx: 3000, global_img_step: 147, aug_ops:[('idenity', [1.0])]
+[2022-08-16 11:52:42,315] automodels.py->Med_hyperHesTrain line:964 [INFO]hyperTrain batch 59% (3000/5124), task_lr=0.000001, hyper_lr=0.012538	gLtNorm 0.5805 (0.7750)	gLvNorm 6.5321 (0.2874)	mvpNorm 10.8516 (1.0572)
+
+[2022-08-16 11:59:42,004] automodels.py->Med_hyperHesTrain line:958 [INFO]hyperTrain epoch: 15, batch_idx: 4000, global_img_step: 148, aug_ops:[('Rotate', tensor([0.8029])), ('Equalize', tensor([-0.6802]))]
+[2022-08-16 11:59:42,005] automodels.py->Med_hyperHesTrain line:964 [INFO]hyperTrain batch 78% (4000/5124), task_lr=0.000001, hyper_lr=0.012538	gLtNorm 0.3643 (0.7677)	gLvNorm 0.2104 (0.2859)	mvpNorm 0.0507 (1.0521)
+
+[2022-08-16 12:06:42,776] automodels.py->Med_hyperHesTrain line:958 [INFO]hyperTrain epoch: 15, batch_idx: 5000, global_img_step: 149, aug_ops:[('elastic transform', tensor([0.0400])), ('ShearX', tensor([0.0872]))]
+[2022-08-16 12:06:42,777] automodels.py->Med_hyperHesTrain line:964 [INFO]hyperTrain batch 98% (5000/5124), task_lr=0.000001, hyper_lr=0.012538	gLtNorm 0.1621 (0.7267)	gLvNorm 0.1697 (0.2871)	mvpNorm 0.6022 (1.0069)
+
+[2022-08-16 12:07:35,945] automodels.py->Med_innerTrain line:1036 [INFO]Train epoch: 15, batch_idx: 0, global_img_step: 150, aug_ops:[('Hsv', tensor([ 0.9089, -0.0038,  0.4842]))]
+[2022-08-16 12:13:05,629] automodels.py->Med_innerTrain line:1036 [INFO]Train epoch: 15, batch_idx: 500, global_img_step: 151, aug_ops:[('idenity', [1.0])]
+[2022-08-16 12:18:34,550] automodels.py->Med_innerTrain line:1036 [INFO]Train epoch: 15, batch_idx: 1000, global_img_step: 152, aug_ops:[('sharpen', tensor([-0.0055])), ('TranslateY', tensor([1.]))]
+[2022-08-16 12:24:04,482] automodels.py->Med_innerTrain line:1036 [INFO]Train epoch: 15, batch_idx: 1500, global_img_step: 153, aug_ops:[('brightness', tensor([-0.3928])), ('sharpen', tensor([-0.5272])), ('ShearX', tensor([-0.6466])), ('Equalize', tensor([-0.3928]))]
+[2022-08-16 12:29:34,504] automodels.py->Med_innerTrain line:1036 [INFO]Train epoch: 15, batch_idx: 2000, global_img_step: 154, aug_ops:[('gaussian noise', tensor([-0.1625]))]
+[2022-08-16 12:35:05,925] automodels.py->Med_innerTrain line:1036 [INFO]Train epoch: 15, batch_idx: 2500, global_img_step: 155, aug_ops:[('Rotate', tensor([-0.5581])), ('TranslateX', tensor([0.7239]))]
+[2022-08-16 12:35:46,398] automodels.py->Med_innerTrain line:1048 [INFO]Epoch: 15	 Inner Train loss: 0.6952, acc=0.7385, lr=0.000001	
+[2022-08-16 12:36:32,139] automodels.py->Med_innerTest line:1210 [INFO]Epoch: 15	 Test loss: 0.6298, score: 0.7583
+[2022-08-16 12:36:32,139] implicit-augment.py->main line:455 [INFO]80% (16/20)
+[2022-08-16 12:36:32,797] automodels.py->Med_hyperHesTrain line:933 [INFO]data point 0 weight: paramP_tensor([-3.4962, -1.5546, -2.9623, -1.3032, -1.3024, -2.4849, -2.2895, -2.4849,
+        -2.4849, -2.4829, -3.6645, -1.5218, -4.0492, -3.2227, -3.4862])
+[2022-08-16 12:36:32,800] automodels.py->Med_hyperHesTrain line:933 [INFO]data point 0 weight: paramM_tensor([ 0.1435,  0.0000,  0.0000,  0.3584, -0.3584, -0.3584,  0.6858, -0.4095,
+        -0.4095, -0.3751,  0.0000,  0.0000,  0.0000,  0.0000,  0.0000,  0.4017,
+         0.1435, -0.4665])
+[2022-08-16 12:36:32,970] automodels.py->Med_hyperHesTrain line:958 [INFO]hyperTrain epoch: 16, batch_idx: 0, global_img_step: 156, aug_ops:[('idenity', [1.0])]
+[2022-08-16 12:36:32,970] automodels.py->Med_hyperHesTrain line:964 [INFO]hyperTrain batch 0% (0/5124), task_lr=0.000001, hyper_lr=0.008313	gLtNorm 0.0263 (0.0263)	gLvNorm 0.3260 (0.3260)	mvpNorm 0.3975 (0.3975)
+
+[2022-08-16 12:43:38,699] automodels.py->Med_hyperHesTrain line:958 [INFO]hyperTrain epoch: 16, batch_idx: 1000, global_img_step: 157, aug_ops:[('Rotate', tensor([-0.5205])), ('ShearY', tensor([-0.2976]))]
+[2022-08-16 12:43:38,699] automodels.py->Med_hyperHesTrain line:964 [INFO]hyperTrain batch 20% (1000/5124), task_lr=0.000001, hyper_lr=0.008313	gLtNorm 0.1318 (0.4650)	gLvNorm 0.0836 (0.2669)	mvpNorm 0.0137 (0.7241)
+
+[2022-08-16 12:50:39,847] automodels.py->Med_hyperHesTrain line:958 [INFO]hyperTrain epoch: 16, batch_idx: 2000, global_img_step: 158, aug_ops:[('brightness', tensor([-0.5082])), ('gaussian noise', tensor([-0.5348]))]
+[2022-08-16 12:50:39,848] automodels.py->Med_hyperHesTrain line:964 [INFO]hyperTrain batch 39% (2000/5124), task_lr=0.000001, hyper_lr=0.008313	gLtNorm 0.0657 (0.5678)	gLvNorm 0.2686 (0.2683)	mvpNorm 0.1676 (0.8339)
+
+[2022-08-16 12:57:40,014] automodels.py->Med_hyperHesTrain line:958 [INFO]hyperTrain epoch: 16, batch_idx: 3000, global_img_step: 159, aug_ops:[('brightness', tensor([-0.6124])), ('Hed', tensor([ 0.1918,  0.5566, -0.6658])), ('TranslateX', tensor([0.3645])), ('ShearX', tensor([-0.5132]))]
+[2022-08-16 12:57:40,015] automodels.py->Med_hyperHesTrain line:964 [INFO]hyperTrain batch 59% (3000/5124), task_lr=0.000001, hyper_lr=0.008313	gLtNorm 0.0708 (0.5636)	gLvNorm 0.1297 (0.2715)	mvpNorm 0.0154 (0.8393)
+
+[2022-08-16 13:04:40,406] automodels.py->Med_hyperHesTrain line:958 [INFO]hyperTrain epoch: 16, batch_idx: 4000, global_img_step: 160, aug_ops:[('Hsv', tensor([-0.5038, -0.4930,  0.8769]))]
+[2022-08-16 13:04:40,407] automodels.py->Med_hyperHesTrain line:964 [INFO]hyperTrain batch 78% (4000/5124), task_lr=0.000001, hyper_lr=0.008313	gLtNorm 0.2313 (0.5513)	gLvNorm 0.0303 (0.2723)	mvpNorm 0.1172 (0.8239)
+
+[2022-08-16 13:11:42,990] automodels.py->Med_hyperHesTrain line:958 [INFO]hyperTrain epoch: 16, batch_idx: 5000, global_img_step: 161, aug_ops:[('saturation', tensor([0.2520])), ('sharpen', tensor([-0.7082])), ('elastic transform', tensor([-0.0748])), ('ShearY', tensor([-0.0299]))]
+[2022-08-16 13:11:42,990] automodels.py->Med_hyperHesTrain line:964 [INFO]hyperTrain batch 98% (5000/5124), task_lr=0.000001, hyper_lr=0.008313	gLtNorm 0.0515 (0.6015)	gLvNorm 0.0892 (0.2695)	mvpNorm 0.0275 (0.8739)
+
+[2022-08-16 13:12:36,199] automodels.py->Med_innerTrain line:1036 [INFO]Train epoch: 16, batch_idx: 0, global_img_step: 162, aug_ops:[('idenity', [1.0])]
+[2022-08-16 13:18:04,964] automodels.py->Med_innerTrain line:1036 [INFO]Train epoch: 16, batch_idx: 500, global_img_step: 163, aug_ops:[('ShearY', tensor([0.5858]))]
+[2022-08-16 13:23:35,641] automodels.py->Med_innerTrain line:1036 [INFO]Train epoch: 16, batch_idx: 1000, global_img_step: 164, aug_ops:[('ShearY', tensor([0.3889]))]
+[2022-08-16 13:29:05,962] automodels.py->Med_innerTrain line:1036 [INFO]Train epoch: 16, batch_idx: 1500, global_img_step: 165, aug_ops:[('idenity', [1.0])]
+[2022-08-16 13:34:36,413] automodels.py->Med_innerTrain line:1036 [INFO]Train epoch: 16, batch_idx: 2000, global_img_step: 166, aug_ops:[('idenity', [1.0])]
+[2022-08-16 13:40:05,584] automodels.py->Med_innerTrain line:1036 [INFO]Train epoch: 16, batch_idx: 2500, global_img_step: 167, aug_ops:[('saturation', tensor([-0.0533])), ('Equalize', tensor([0.5554]))]
+[2022-08-16 13:40:45,690] automodels.py->Med_innerTrain line:1048 [INFO]Epoch: 16	 Inner Train loss: 0.6941, acc=0.7391, lr=0.000001	
+[2022-08-16 13:41:31,003] automodels.py->Med_innerTest line:1210 [INFO]Epoch: 16	 Test loss: 0.6389, score: 0.7479
+[2022-08-16 13:41:31,003] implicit-augment.py->main line:455 [INFO]85% (17/20)
+[2022-08-16 13:41:31,663] automodels.py->Med_hyperHesTrain line:933 [INFO]data point 0 weight: paramP_tensor([-3.4134, -1.4714, -2.8800, -1.3863, -1.3855, -2.4849, -2.2064, -2.4849,
+        -2.4849, -2.3998, -3.5814, -1.6049, -3.9660, -3.3058, -3.5693])
+[2022-08-16 13:41:31,666] automodels.py->Med_hyperHesTrain line:933 [INFO]data point 0 weight: paramM_tensor([ 0.1435,  0.0000,  0.0000,  0.3584, -0.3584, -0.3584,  0.7690, -0.3264,
+        -0.4926, -0.2920,  0.0000,  0.0000,  0.0000,  0.0000,  0.0000,  0.3186,
+         0.1435, -0.5497])
+[2022-08-16 13:41:31,834] automodels.py->Med_hyperHesTrain line:958 [INFO]hyperTrain epoch: 17, batch_idx: 0, global_img_step: 168, aug_ops:[('idenity', [1.0])]
+[2022-08-16 13:41:31,835] automodels.py->Med_hyperHesTrain line:964 [INFO]hyperTrain batch 0% (0/5124), task_lr=0.000001, hyper_lr=0.004820	gLtNorm 0.1163 (0.1163)	gLvNorm 0.0167 (0.0167)	mvpNorm 0.1596 (0.1596)
+
+[2022-08-16 13:48:38,696] automodels.py->Med_hyperHesTrain line:958 [INFO]hyperTrain epoch: 17, batch_idx: 1000, global_img_step: 169, aug_ops:[('gaussian noise', tensor([-0.1867]))]
+[2022-08-16 13:48:38,697] automodels.py->Med_hyperHesTrain line:964 [INFO]hyperTrain batch 20% (1000/5124), task_lr=0.000001, hyper_lr=0.004820	gLtNorm 0.0615 (0.6472)	gLvNorm 0.1231 (0.2387)	mvpNorm 0.2296 (0.8512)
+
+[2022-08-16 13:55:44,161] automodels.py->Med_hyperHesTrain line:958 [INFO]hyperTrain epoch: 17, batch_idx: 2000, global_img_step: 170, aug_ops:[('brightness', tensor([0.6017]))]
+[2022-08-16 13:55:44,161] automodels.py->Med_hyperHesTrain line:964 [INFO]hyperTrain batch 39% (2000/5124), task_lr=0.000001, hyper_lr=0.004820	gLtNorm 0.2027 (0.5375)	gLvNorm 0.0752 (0.2345)	mvpNorm 0.0503 (0.7592)
+
+[2022-08-16 14:02:47,215] automodels.py->Med_hyperHesTrain line:958 [INFO]hyperTrain epoch: 17, batch_idx: 3000, global_img_step: 171, aug_ops:[('idenity', [1.0])]
+[2022-08-16 14:02:47,215] automodels.py->Med_hyperHesTrain line:964 [INFO]hyperTrain batch 59% (3000/5124), task_lr=0.000001, hyper_lr=0.004820	gLtNorm 0.0662 (0.5839)	gLvNorm 0.0492 (0.2440)	mvpNorm 0.0259 (0.8172)
+
+[2022-08-16 14:09:46,849] automodels.py->Med_hyperHesTrain line:958 [INFO]hyperTrain epoch: 17, batch_idx: 4000, global_img_step: 172, aug_ops:[('gaussian noise', tensor([-0.9456]))]
+[2022-08-16 14:09:46,850] automodels.py->Med_hyperHesTrain line:964 [INFO]hyperTrain batch 78% (4000/5124), task_lr=0.000001, hyper_lr=0.004820	gLtNorm 0.0051 (0.5760)	gLvNorm 0.0487 (0.2461)	mvpNorm 0.0570 (0.8172)
+
+[2022-08-16 14:16:47,200] automodels.py->Med_hyperHesTrain line:958 [INFO]hyperTrain epoch: 17, batch_idx: 5000, global_img_step: 173, aug_ops:[('idenity', [1.0])]
+[2022-08-16 14:16:47,200] automodels.py->Med_hyperHesTrain line:964 [INFO]hyperTrain batch 98% (5000/5124), task_lr=0.000001, hyper_lr=0.004820	gLtNorm 0.3689 (0.5788)	gLvNorm 0.0346 (0.2461)	mvpNorm 0.3222 (0.8227)
+
+[2022-08-16 14:17:40,362] automodels.py->Med_innerTrain line:1036 [INFO]Train epoch: 17, batch_idx: 0, global_img_step: 174, aug_ops:[('sharpen', tensor([0.3841]))]
+[2022-08-16 14:23:09,241] automodels.py->Med_innerTrain line:1036 [INFO]Train epoch: 17, batch_idx: 500, global_img_step: 175, aug_ops:[('saturation', tensor([0.5296])), ('ShearY', tensor([-0.1764]))]
+[2022-08-16 14:28:37,767] automodels.py->Med_innerTrain line:1036 [INFO]Train epoch: 17, batch_idx: 1000, global_img_step: 176, aug_ops:[('saturation', tensor([-0.8648])), ('elastic transform', tensor([0.1087]))]
+[2022-08-16 14:34:05,384] automodels.py->Med_innerTrain line:1036 [INFO]Train epoch: 17, batch_idx: 1500, global_img_step: 177, aug_ops:[('Hed', tensor([ 0.0850,  0.6531, -0.5510]))]
+[2022-08-16 14:39:33,724] automodels.py->Med_innerTrain line:1036 [INFO]Train epoch: 17, batch_idx: 2000, global_img_step: 178, aug_ops:[('Hed', tensor([ 1.0000,  0.4196, -0.3997])), ('TranslateX', tensor([1.]))]
+[2022-08-16 14:45:02,619] automodels.py->Med_innerTrain line:1036 [INFO]Train epoch: 17, batch_idx: 2500, global_img_step: 179, aug_ops:[('TranslateY', tensor([-0.6483]))]
+[2022-08-16 14:45:42,780] automodels.py->Med_innerTrain line:1048 [INFO]Epoch: 17	 Inner Train loss: 0.6880, acc=0.7411, lr=0.000000	
+[2022-08-16 14:46:28,232] automodels.py->Med_innerTest line:1210 [INFO]Epoch: 17	 Test loss: 0.6282, score: 0.7533
+[2022-08-16 14:46:28,233] implicit-augment.py->main line:455 [INFO]90% (18/20)
+[2022-08-16 14:46:28,882] automodels.py->Med_hyperHesTrain line:933 [INFO]data point 0 weight: paramP_tensor([-3.4615, -1.4232, -2.8318, -1.4345, -1.4337, -2.4849, -2.2546, -2.4849,
+        -2.4849, -2.4480, -3.6296, -1.5567, -4.0142, -3.3540, -3.5211])
+[2022-08-16 14:46:28,884] automodels.py->Med_hyperHesTrain line:933 [INFO]data point 0 weight: paramM_tensor([ 0.1435,  0.0000,  0.0000,  0.3584, -0.3584, -0.3584,  0.8172, -0.3746,
+        -0.4444, -0.2920,  0.0000,  0.0000,  0.0000,  0.0000,  0.0000,  0.3186,
+         0.1435, -0.5497])
+[2022-08-16 14:46:29,010] automodels.py->Med_hyperHesTrain line:958 [INFO]hyperTrain epoch: 18, batch_idx: 0, global_img_step: 180, aug_ops:[('contrast', tensor([0.1295])), ('saturation', tensor([-0.7765])), ('Hed', tensor([ 0.6932, -0.2051, -0.3638])), ('sharpen', tensor([-0.3659])), ('elastic transform', tensor([-0.0435])), ('TranslateY', tensor([-0.7554]))]
+[2022-08-16 14:46:29,011] automodels.py->Med_hyperHesTrain line:964 [INFO]hyperTrain batch 0% (0/5124), task_lr=0.000000, hyper_lr=0.002209	gLtNorm 0.0940 (0.0940)	gLvNorm 1.3439 (1.3439)	mvpNorm 0.8071 (0.8071)
+
+[2022-08-16 14:53:34,454] automodels.py->Med_hyperHesTrain line:958 [INFO]hyperTrain epoch: 18, batch_idx: 1000, global_img_step: 181, aug_ops:[('brightness', tensor([0.2041])), ('TranslateY', tensor([0.8485]))]
+[2022-08-16 14:53:34,454] automodels.py->Med_hyperHesTrain line:964 [INFO]hyperTrain batch 20% (1000/5124), task_lr=0.000000, hyper_lr=0.002209	gLtNorm 0.0877 (0.5658)	gLvNorm 1.9453 (0.2534)	mvpNorm 2.5248 (0.7911)
+
+[2022-08-16 15:00:41,735] automodels.py->Med_hyperHesTrain line:958 [INFO]hyperTrain epoch: 18, batch_idx: 2000, global_img_step: 182, aug_ops:[('Hsv', tensor([ 0.3068, -1.0000,  0.4013])), ('TranslateY', tensor([-0.4326]))]
+[2022-08-16 15:00:41,736] automodels.py->Med_hyperHesTrain line:964 [INFO]hyperTrain batch 39% (2000/5124), task_lr=0.000000, hyper_lr=0.002209	gLtNorm 0.1664 (0.5226)	gLvNorm 0.0648 (0.2339)	mvpNorm 0.2890 (0.7351)
+
+[2022-08-16 15:07:47,241] automodels.py->Med_hyperHesTrain line:958 [INFO]hyperTrain epoch: 18, batch_idx: 3000, global_img_step: 183, aug_ops:[('ShearX', tensor([-0.0993]))]
+[2022-08-16 15:07:47,242] automodels.py->Med_hyperHesTrain line:964 [INFO]hyperTrain batch 59% (3000/5124), task_lr=0.000000, hyper_lr=0.002209	gLtNorm 0.0751 (0.5365)	gLvNorm 0.0543 (0.2400)	mvpNorm 0.0237 (0.7736)
+
+[2022-08-16 15:14:50,248] automodels.py->Med_hyperHesTrain line:958 [INFO]hyperTrain epoch: 18, batch_idx: 4000, global_img_step: 184, aug_ops:[('Equalize', tensor([0.4408]))]
+[2022-08-16 15:14:50,249] automodels.py->Med_hyperHesTrain line:964 [INFO]hyperTrain batch 78% (4000/5124), task_lr=0.000000, hyper_lr=0.002209	gLtNorm 0.0383 (0.5356)	gLvNorm 0.0943 (0.2362)	mvpNorm 0.0698 (0.7786)
+
+[2022-08-16 15:21:59,087] automodels.py->Med_hyperHesTrain line:958 [INFO]hyperTrain epoch: 18, batch_idx: 5000, global_img_step: 185, aug_ops:[('Equalize', tensor([-0.4200]))]
+[2022-08-16 15:21:59,087] automodels.py->Med_hyperHesTrain line:964 [INFO]hyperTrain batch 98% (5000/5124), task_lr=0.000000, hyper_lr=0.002209	gLtNorm 0.3801 (0.5396)	gLvNorm 0.0473 (0.2383)	mvpNorm 0.6829 (0.7894)
+
+[2022-08-16 15:22:52,646] automodels.py->Med_innerTrain line:1036 [INFO]Train epoch: 18, batch_idx: 0, global_img_step: 186, aug_ops:[('gaussian noise', tensor([-0.3151])), ('ShearX', tensor([0.2683]))]
+[2022-08-16 15:28:26,716] automodels.py->Med_innerTrain line:1036 [INFO]Train epoch: 18, batch_idx: 500, global_img_step: 187, aug_ops:[('gaussian blur', tensor([0.1120])), ('Rotate', tensor([-0.2094])), ('Equalize', tensor([-0.2999]))]
+[2022-08-16 15:34:00,728] automodels.py->Med_innerTrain line:1036 [INFO]Train epoch: 18, batch_idx: 1000, global_img_step: 188, aug_ops:[('gaussian noise', tensor([-0.4674])), ('ShearX', tensor([0.3757]))]
+[2022-08-16 15:39:33,011] automodels.py->Med_innerTrain line:1036 [INFO]Train epoch: 18, batch_idx: 1500, global_img_step: 189, aug_ops:[('Hsv', tensor([-0.1372, -0.0974,  0.2203])), ('Rotate', tensor([0.3024]))]
+[2022-08-16 15:45:04,181] automodels.py->Med_innerTrain line:1036 [INFO]Train epoch: 18, batch_idx: 2000, global_img_step: 190, aug_ops:[('ShearX', tensor([-0.0632]))]
+[2022-08-16 15:50:37,242] automodels.py->Med_innerTrain line:1036 [INFO]Train epoch: 18, batch_idx: 2500, global_img_step: 191, aug_ops:[('ShearX', tensor([-0.5742]))]
+[2022-08-16 15:51:17,702] automodels.py->Med_innerTrain line:1048 [INFO]Epoch: 18	 Inner Train loss: 0.6840, acc=0.7429, lr=0.000000	
+[2022-08-16 15:52:03,604] automodels.py->Med_innerTest line:1210 [INFO]Epoch: 18	 Test loss: 0.6274, score: 0.7583
+[2022-08-16 15:52:03,605] implicit-augment.py->main line:455 [INFO]95% (19/20)
+[2022-08-16 15:52:04,276] automodels.py->Med_hyperHesTrain line:933 [INFO]data point 0 weight: paramP_tensor([-3.4836, -1.4011, -2.8097, -1.4124, -1.4116, -2.4849, -2.2767, -2.4849,
+        -2.4849, -2.4259, -3.6075, -1.5788, -4.0363, -3.3761, -3.5432])
+[2022-08-16 15:52:04,279] automodels.py->Med_hyperHesTrain line:933 [INFO]data point 0 weight: paramM_tensor([ 0.1435,  0.0000,  0.0000,  0.3584, -0.3584, -0.3584,  0.8172, -0.3746,
+        -0.4444, -0.2920,  0.0000,  0.0000,  0.0000,  0.0000,  0.0000,  0.3186,
+         0.1435, -0.5497])
+[2022-08-16 15:52:04,542] automodels.py->Med_hyperHesTrain line:958 [INFO]hyperTrain epoch: 19, batch_idx: 0, global_img_step: 192, aug_ops:[('Equalize', tensor([-0.6465]))]
+[2022-08-16 15:52:04,542] automodels.py->Med_hyperHesTrain line:964 [INFO]hyperTrain batch 0% (0/5124), task_lr=0.000000, hyper_lr=0.000596	gLtNorm 0.1169 (0.1169)	gLvNorm 0.0624 (0.0624)	mvpNorm 0.2909 (0.2909)
+
+[2022-08-16 15:59:14,701] automodels.py->Med_hyperHesTrain line:958 [INFO]hyperTrain epoch: 19, batch_idx: 1000, global_img_step: 193, aug_ops:[('brightness', tensor([0.9222])), ('Hsv', tensor([-0.0056, -0.1013, -0.0994]))]
+[2022-08-16 15:59:14,702] automodels.py->Med_hyperHesTrain line:964 [INFO]hyperTrain batch 20% (1000/5124), task_lr=0.000000, hyper_lr=0.000596	gLtNorm 1.0917 (0.6633)	gLvNorm 0.0602 (0.2546)	mvpNorm 1.4737 (0.9204)
+
+[2022-08-16 16:06:27,688] automodels.py->Med_hyperHesTrain line:958 [INFO]hyperTrain epoch: 19, batch_idx: 2000, global_img_step: 194, aug_ops:[('idenity', [1.0])]
+[2022-08-16 16:06:27,689] automodels.py->Med_hyperHesTrain line:964 [INFO]hyperTrain batch 39% (2000/5124), task_lr=0.000000, hyper_lr=0.000596	gLtNorm 0.0420 (0.7241)	gLvNorm 0.1165 (0.2731)	mvpNorm 0.0675 (1.0140)
+
+[2022-08-16 16:13:42,973] automodels.py->Med_hyperHesTrain line:958 [INFO]hyperTrain epoch: 19, batch_idx: 3000, global_img_step: 195, aug_ops:[('elastic transform', tensor([0.4331])), ('Rotate', tensor([-0.3334]))]
+[2022-08-16 16:13:42,974] automodels.py->Med_hyperHesTrain line:964 [INFO]hyperTrain batch 59% (3000/5124), task_lr=0.000000, hyper_lr=0.000596	gLtNorm 0.4440 (0.7714)	gLvNorm 0.0719 (0.2681)	mvpNorm 0.7815 (1.0399)
+
+[2022-08-16 16:20:59,648] automodels.py->Med_hyperHesTrain line:958 [INFO]hyperTrain epoch: 19, batch_idx: 4000, global_img_step: 196, aug_ops:[('brightness', tensor([1.])), ('contrast', tensor([-0.2291]))]
+[2022-08-16 16:20:59,649] automodels.py->Med_hyperHesTrain line:964 [INFO]hyperTrain batch 78% (4000/5124), task_lr=0.000000, hyper_lr=0.000596	gLtNorm 3.5789 (0.7913)	gLvNorm 0.1159 (0.2658)	mvpNorm 4.8551 (1.0618)
+
+[2022-08-16 16:28:19,318] automodels.py->Med_hyperHesTrain line:958 [INFO]hyperTrain epoch: 19, batch_idx: 5000, global_img_step: 197, aug_ops:[('elastic transform', tensor([-0.2803]))]
+[2022-08-16 16:28:19,318] automodels.py->Med_hyperHesTrain line:964 [INFO]hyperTrain batch 98% (5000/5124), task_lr=0.000000, hyper_lr=0.000596	gLtNorm 0.2643 (0.8187)	gLvNorm 2.5605 (0.2683)	mvpNorm 1.3403 (1.0949)
+
+[2022-08-16 16:29:14,376] automodels.py->Med_innerTrain line:1036 [INFO]Train epoch: 19, batch_idx: 0, global_img_step: 198, aug_ops:[('idenity', [1.0])]
+[2022-08-16 16:34:55,480] automodels.py->Med_innerTrain line:1036 [INFO]Train epoch: 19, batch_idx: 500, global_img_step: 199, aug_ops:[('TranslateY', tensor([-0.4087])), ('Equalize', tensor([0.6408]))]
+[2022-08-16 16:40:33,351] automodels.py->Med_innerTrain line:1036 [INFO]Train epoch: 19, batch_idx: 1000, global_img_step: 200, aug_ops:[('Hsv', tensor([-0.0632, -0.0715, -0.4126])), ('gaussian blur', tensor([-0.2092]))]
+[2022-08-16 16:46:09,024] automodels.py->Med_innerTrain line:1036 [INFO]Train epoch: 19, batch_idx: 1500, global_img_step: 201, aug_ops:[('idenity', [1.0])]
+[2022-08-16 16:51:41,736] automodels.py->Med_innerTrain line:1036 [INFO]Train epoch: 19, batch_idx: 2000, global_img_step: 202, aug_ops:[('saturation', tensor([0.5398])), ('TranslateX', tensor([0.3184]))]
+[2022-08-16 16:57:14,963] automodels.py->Med_innerTrain line:1036 [INFO]Train epoch: 19, batch_idx: 2500, global_img_step: 203, aug_ops:[('idenity', [1.0])]
+[2022-08-16 16:57:55,567] automodels.py->Med_innerTrain line:1048 [INFO]Epoch: 19	 Inner Train loss: 0.6812, acc=0.7430, lr=0.000000	
+[2022-08-16 16:58:41,776] automodels.py->Med_innerTest line:1210 [INFO]Epoch: 19	 Test loss: 0.6196, score: 0.7639
+[2022-08-16 16:58:41,948] implicit-augment.py->main line:498 [INFO]save train history at: /home/rayeh/workspace/project/med/Med_AutoDO/picture/run1_UNet_opt_HES_est_True_aug_model_SEP_los_model_NONE_ir_1_sr_1.0_nr_0.0.jpg
+[2022-08-16 16:58:41,949] implicit-augment.py->main line:500 [INFO]BEST trained model has 0.7640 Dice score
