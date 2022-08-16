@@ -21,7 +21,7 @@ import wandb
 
 # conda activate autodo
 # python implicit-augment.py -r run1 --gpu 0 -nr 0.0 -ir 1 --dataset med --epochs 20
-# python implicit-augment.py -r run1 --gpu 0 -nr 0.0 -ir 1 --dataset med --epochs 200 --aug-model SEP --los-model NONE --hyper-opt HES
+# python implicit-augment.py -r run1 --gpu 0 -nr 0.0 -ir 1 --dataset med --epochs 100 --aug-model SEP --los-model NONE --hyper-opt HES
 # python implicit-augment.py -r run0 --gpu 1 -nr 0.0 -ir 1 --dataset med --epochs 20 --aug-model SEP --los-model NONE --hyper-opt HES
 # python implicit-augment.py -r run2 --gpu 0 -nr 0.0 -ir 1 --dataset med --epochs 20 --aug-model SEP --los-model NONE --hyper-opt HES
 
