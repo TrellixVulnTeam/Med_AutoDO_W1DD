@@ -21,7 +21,7 @@ import wandb
 
 # conda activate autodo
 # python implicit-augment.py -r run1 --gpu 0 -nr 0.0 -ir 1 --dataset med --epochs 20
-# python implicit-augment.py -r run1 --gpu 0 -nr 0.0 -ir 1 --dataset med --epochs 100 --aug-model SEP --los-model NONE --hyper-opt HES
+# python implicit-augment.py -r run1 --gpu 1 -nr 0.0 -ir 1 --dataset med --epochs 100 --aug-model SEP --los-model NONE --hyper-opt HES
 # python implicit-augment.py -r run0 --gpu 1 -nr 0.0 -ir 1 --dataset med --epochs 20 --aug-model SEP --los-model NONE --hyper-opt HES
 # python implicit-augment.py -r run2 --gpu 0 -nr 0.0 -ir 1 --dataset med --epochs 20 --aug-model SEP --los-model NONE --hyper-opt HES
 
@@ -51,7 +51,7 @@ def get_args():
                         help='number of epochs to train (default: 200)')
     parser.add_argument('--lr-decay-rate', type=float, default=0.1, metavar='LR',
                         help='learning rate decay (default: 0.1)')
-    parser.add_argument('--lr-decay-epochs', type=str, default='5,10,15', metavar='LR',
+    parser.add_argument('--lr-decay-epochs', type=str, default='30,55,80', metavar='LR',
                         help='learning rate decay epochs (default: 150,175,195')
     parser.add_argument('--lr-warm-epochs', type=int, default=5, metavar='LR',
                         help='number using cosine annealing (default: False')
@@ -97,12 +97,10 @@ def get_args():
     return args
 
 def main(args):
-    wsi_Good_patch_path = '/home/rayeh/workspace/project/med/data/Med_patch_512/Good'
-    mask_Good_patch_path = '/home/rayeh/workspace/project/med/data/Med_patch_512/Good_mask'
-    temp_wsi_Good_patch_path = '/home/rayeh/workspace/project/med/data/data_512/imgs'
-    temp_mask_Good_patch_path = '/home/rayeh/workspace/project/med/data/data_512/masks'
-    val_wsi_Good_patch_path = '/home/rayeh/workspace/project/med/data/Med_test_patch_512/Good'
-    val_mask_Good_patch_path = '/home/rayeh/workspace/project/med/data/Med_test_patch_512/Good_mask'
+    wsi_Good_patch_path = '/mnt/Nami/Med_patch_512/Good'
+    mask_Good_patch_path = '/mnt/Nami/Med_patch_512/Good_mask'
+    val_wsi_Good_patch_path = '/mnt/Nami/Med_test_patch_512/Good'
+    val_mask_Good_patch_path = '/mnt/Nami/Med_test_patch_512/Good_mask'
     #提取args
     args.hyper_est = True
     args.lr_warm = True
@@ -118,14 +116,15 @@ def main(args):
     noise_ratio = args.noise_ratio
     model_postfix = 'ir_{}_sr_{}_nr_{}'.format(imbalance_ratio, subsample_ratio, noise_ratio)
     run_folder = args.run_folder
+    experiment_name = f'autodo_(lr-decay-epochs)_e{args.epochs}_{dataset}_{run_folder}_{model_postfix}_{args.aug_model}_{args.los_model}_{hyper_opt}'
     #設定log
-    log_file = f"./Log/autodo_e{args.epochs}_{dataset}_{run_folder}_{model_postfix}_{args.aug_model}_{args.los_model}_{hyper_opt}.log"
+    log_file = f"./Log/{experiment_name}.log"
     logger = Log(__name__, log_file).getlog()
     logger.info(args)
+    os.environ["WANDB_API_KEY"] = '816d619d917f02d5ff37c113e8630b5474b1ceaa'
     if hyper_est and hyper_opt=='HES':
-        experiment_name = f'autodo_e{args.epochs}_{dataset}_{run_folder}_{model_postfix}_{args.aug_model}_{args.los_model}_{hyper_opt}'
         print(experiment_name)
-        experiment = wandb.init(project='autodo', resume='allow', anonymous='must', name=experiment_name)
+        experiment = wandb.init(project='autodo2', resume='allow', anonymous='must', name=experiment_name)
         experiment.config.update(dict(epochs=args.epochs, batch_size=4, learning_rate=0.00001,run_folder=run_folder,
                                         imbalance_ratio=imbalance_ratio, subsample_ratio=subsample_ratio, noise_ratio=noise_ratio,
                                         aug_model=args.aug_model, los_model=args.los_model, hyper_opt=hyper_opt))
@@ -172,13 +171,13 @@ def main(args):
             train_images = total_images - test_images
             train_data, test_data = random_split(train_data, [train_images,test_images])
             valid_images = 0.2
-        elif run_folder == 'run2': #for test
-            #train data: WSI 1~5
-            train_data = MedDataset(temp_wsi_Good_patch_path, temp_mask_Good_patch_path, img_scale)
-            total_images = len(train_data)
-            #test data: WSI 6
-            test_data = MedDataset(temp_wsi_Good_patch_path, temp_mask_Good_patch_path, img_scale)
-            valid_images = 0.2
+        # elif run_folder == 'run2': #for test
+        #     #train data: WSI 1~5
+        #     train_data = MedDataset(temp_wsi_Good_patch_path, temp_mask_Good_patch_path, img_scale)
+        #     total_images = len(train_data)
+        #     #test data: WSI 6
+        #     test_data = MedDataset(temp_wsi_Good_patch_path, temp_mask_Good_patch_path, img_scale)
+        #     valid_images = 0.2
         num_classes = 2
         num_channels = 3
         hyperEpochStart = 5
@@ -395,7 +394,7 @@ def main(args):
             args.hyper_lr_warmup_to = args.hyper_lr
     #
     optimizer = optim.RMSprop(Dnn_model.parameters(), lr=args.lr, weight_decay=1e-8, momentum=0.9)
-    scheduler = optim.lr_scheduler.ReduceLROnPlateau(optimizer, 'max', patience=3)  # goal: maximize Dice score
+    scheduler = optim.lr_scheduler.ReduceLROnPlateau(optimizer, 'max', patience=5, min_lr=1e-8)  # goal: maximize Dice score
     # hyper models
     T = total_images
     L = len(test_loader.dataset)
@@ -453,7 +452,7 @@ def main(args):
     global_img_step = 0
     for epoch in range(0, args.epochs):
         logger.info('{:.0f}% ({}/{})'.format(100.0*epoch/args.epochs, epoch, args.epochs))
-        # adjust_learning_rate(args, optimizer, epoch)
+        adjust_learning_rate(args, optimizer, epoch)
         testEnable  = True #if  (epoch >= hyperEpochStart) else False
         hyperEnable = True if ((epoch >  hyperEpochStart) and hyperGradEnable)  else False
         if not(hyper_est): # train classifier only

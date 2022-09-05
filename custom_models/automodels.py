@@ -401,11 +401,6 @@ class Med_AugmentModel_2(nn.Module):
         out: torch.Tensor = torch.stack([h, e, d], -3)
 
         return out
-        # rgb = torch.permute(rgb, (0,2,3,1)) #B,C,H,W -> B,H,W,C
-        # rgb_aug  = rgb + torch.tensor(2)
-        # rgb_aug_log = torch.log(rgb_aug)
-        # stains = torch.matmul(torch.reshape(-rgb_aug_log, (-1, 3)), self.rgb_from_hed)
-        # return torch.reshape(stains, rgb.shape)
 
     def hed_to_rgb(self, stains):
         h: torch.Tensor = stains[..., 0, :, :]
@@ -419,14 +414,6 @@ class Med_AugmentModel_2(nn.Module):
         out: torch.Tensor = torch.stack([r, g, b], -3)
 
         return out
-        # logrgb2 = torch.matmul(-torch.reshape(stains, (-1, 3)), self.hed_from_rgb)
-        # rgb2 = torch.exp(logrgb2)
-        # rgb2 = torch.reshape(rgb2 - 2, stains.size())
-        # if sum(rgb2.view(-1,1))>0: # non all-zero vector
-        #     # linear rescale to range [0, 1]
-        #     rgb2 -= rgb2.min() # bring the lower range to 0
-        #     rgb2 /= rgb2.max() # bring the upper range to 1
-        # return rgb2
 
     def forward(self, idx, data):
         x = data['image']
@@ -740,6 +727,7 @@ def hyperHesTrain(args, Dnn_model, optimizer, device, valid_loader, train_loader
         data_time.update(time.time() - end)
         # warm-up learning rate
         hyper_lr = hyper_warmup_learning_rate(args, epoch-start, batch_idx, B, hyperOptimizer)
+
         # v1 = dL_v / dTheta: Lx1
         optimizer.zero_grad()
         vData = validAugModel(vIndex, vData)
@@ -749,6 +737,7 @@ def hyperHesTrain(args, Dnn_model, optimizer, device, valid_loader, train_loader
         vLoss = validLosModel(vIndex, vOutput, vTarget)
         g1 = torch.autograd.grad(vLoss, theta)
         v1 = [e.detach().clone() for e in g1]
+
         # v0 = dL_t / dTheta: Lx1
         optimizer.zero_grad()
         tData = trainAugModel(tIndex, tData)
@@ -758,6 +747,7 @@ def hyperHesTrain(args, Dnn_model, optimizer, device, valid_loader, train_loader
         tLoss = trainLosModel(tIndex, tOutput, tTarget)
         g0 = torch.autograd.grad(tLoss, theta, create_graph=True)
         v0 = [e.detach().clone() for e in g0]
+
         # v2 = H^-1 * v0: Lx1
         v2 = [-e.detach().clone() for e in v1]
         if args.hyper_iters > 0: # Neumann series
@@ -765,6 +755,7 @@ def hyperHesTrain(args, Dnn_model, optimizer, device, valid_loader, train_loader
                 ns = torch.autograd.grad(g0, theta, grad_outputs=v1, create_graph=True)
                 v1 = [v1[l] - args.hyper_alpha*e for l,e in enumerate(ns)]
                 v2 = [v2[l] - e.detach().clone() for l,e in enumerate(v1)]
+
         # MVP compute
         v0Norm = torch.sum(torch.cat([t.detach().clone().view(-1)*v.detach().clone().view(-1) for t,v in zip(v0,v0)])) # gLt*gLt
         v1Norm = torch.sum(torch.cat([t.detach().clone().view(-1)*v.detach().clone().view(-1) for t,v in zip(v1,v1)])) # gLv*gLv
@@ -777,10 +768,12 @@ def hyperHesTrain(args, Dnn_model, optimizer, device, valid_loader, train_loader
         v0Norms.update(v0Norm.item())
         v1Norms.update(v1Norm.item())
         mvpNorms.update(mvpNorm.item())
+
         # v3 = (dL_t / dLambda) * v2: Px1
         hyperOptimizer.zero_grad()
         torch.autograd.backward(g0, grad_tensors=v2)
         hyperOptimizer.step()
+        
         # measure elapsed time
         batch_time.update(time.time() - end)
         end = time.time()
@@ -1042,7 +1035,7 @@ def Med_innerTrain(args, Dnn_model, optimizer, scheduler, device, loader, epoch,
         #         'Loss {loss.val:.4f} ({loss.avg:.4f})\t'.format(
         #         100.0*batch_idx/B, batch_idx, B, lr,loss=losses))
     score /= B
-    scheduler.step(score)
+    # scheduler.step(score)
     train_loss /= B
     logger.info('Epoch: {}\t Inner Train loss: {:.4f}, acc={:.4f}, lr={:.6f}\t'.format(epoch, train_loss, score, optimizer.param_groups[0]['lr'],loss=losses))
     return train_loss, score, global_img_step
